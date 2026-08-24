@@ -5,10 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
@@ -57,58 +55,6 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
 		return cf.get();
 		}
-	}
-	@Override
-	public Object get(TransactionId transactionId, Comparable instance) throws IOException {
-		return asynchClient.get(transactionId, instance);
-	}
-
-	@Override
-	public Object get(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
-		return asynchClient.get(alias, transactionId, instance);
-	}
-
-	@Override
-	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws IOException {
-		return asynchClient.getByIndex(transactionId, index);
-	}
-
-	@Override
-	public Object getByIndex(TransactionId transactionId, Comparable index) throws IOException {
-		return asynchClient.getByIndex(transactionId, index);
-	}
-
-	@Override
-	public void remove(TransactionId transactionId, Comparable instance) throws IOException {
-		asynchClient.remove(transactionId, instance);
-	}
-	@Override
-	public void remove(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
-		asynchClient.remove(alias, transactionId, instance);
-	}
-	@Override
-	public void storekv(TransactionId xid, Comparable index, Object instance) throws IOException {
-		asynchClient.storekv(xid, index, instance);	
-	}
-	@Override
-	public void storekv(Alias alias, TransactionId xid, Comparable index, Object instance) throws IOException {
-		asynchClient.storekv(alias, xid, index, instance);;
-	}
-	
-	public Object getByIndex(TransactionId xid, Object index) throws IOException {
-		return asynchClient.getByIndex(xid, (Comparable) index);
-	}
-
-	public Object getByIndex(Alias alias, TransactionId xid, Object index) throws IOException {
-		return asynchClient.getByIndex(alias, xid, (Comparable) index);
-	}
-	@Override
-	public Object get(TransactionId xid, Object instance) throws IOException {
-		return asynchClient.get(xid, (Comparable) instance);
-	}
-	@Override
-	public Object get(Alias alias, TransactionId xid, Object instance) throws IOException {
-		return asynchClient.get(alias, xid, (Comparable)instance);
 	}
 
 	public void close() throws IOException {
@@ -167,5 +113,4 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 		rc.endTransaction(xid);
 		rc.close();
 	}
-
 }

@@ -33,7 +33,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 public class GenerateAsynchClientBindings {
 	private static boolean DEBUG = true;
 	public static String outputClass = "AsynchRelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
-	public static String extend = "com.neocoretechs.relatrix.client.ClientNonTransactionInterface"; // extends this interface
+	public static String extend = "com.neocoretechs.relatrix.client.ClientInterface"; // extends this interface
 	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
 	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
@@ -118,7 +118,7 @@ public class GenerateAsynchClientBindings {
 			packageDecl = args[6];
 		if(args.length > 7)
 			extend = args[7];
-		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0, false);
+		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0);
 		MethodNamesAndParams rmnap = sim.getMethodNamesAndParams();
 		generateExclusions();
 		generateInterface(rmnap);

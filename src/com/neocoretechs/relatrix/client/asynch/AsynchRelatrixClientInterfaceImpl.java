@@ -2259,26 +2259,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
                     throw new RuntimeException(e);
           }
 	}
-	@Override
-	public Object remove(Alias arg1,Object arg2) {
-		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1, arg2);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    return cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-	@Override
-	public Object remove(Object arg1) {
-		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    return cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
+	
 	@Override
 	public Object get(Alias arg1,Object arg2) {
 		RelatrixStatement s = new RelatrixStatement(getSession(), "get", arg1, arg2);

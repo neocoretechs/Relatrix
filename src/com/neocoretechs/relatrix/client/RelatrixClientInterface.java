@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
 
-public interface RelatrixClientInterface extends ClientNonTransactionInterface{
+public interface RelatrixClientInterface extends ClientInterface{
 
 	public RelationList multiStore(ArrayList arg1) throws java.io.IOException;
 
@@ -497,7 +497,7 @@ public interface RelatrixClientInterface extends ClientNonTransactionInterface{
 
 	public boolean contains(Comparable arg1) throws java.io.IOException;
 
-	public Object get(Object arg1) throws java.io.IOException;
+	public Object get(Object arg1) throws IOException;
 
 	public Object get(Alias arg1,Object arg2) throws java.io.IOException;
 

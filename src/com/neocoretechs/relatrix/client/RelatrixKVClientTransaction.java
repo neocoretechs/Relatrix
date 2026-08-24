@@ -63,22 +63,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	public int getRemotePort() {
 		return asynchClient.getRemotePort();
 	}
-	@Override
-	public void storekv(TransactionId xid, Comparable index, Object instance) throws IOException {
-		asynchClient.storekv(xid, index, instance);	
-	}
-	@Override
-	public void storekv(Alias alias, TransactionId xid, Comparable index, Object instance) throws IOException {
-		asynchClient.storekv(alias, xid, index, instance);;
-	}
-	@Override
-	public Object getByIndex(TransactionId xid, Comparable index) throws IOException {
-		return asynchClient.getByIndex(xid, index);
-	}
-	@Override
-	public Object getByIndex(Alias alias, TransactionId xid, Comparable index) throws IOException {
-		return asynchClient.getByIndex(alias, xid, index);
-	}
+
 	@Override
 	public Object get(TransactionId xid, Comparable instance) throws IOException {
 		return asynchClient.get(xid, instance);

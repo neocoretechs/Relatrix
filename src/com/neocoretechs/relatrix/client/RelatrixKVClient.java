@@ -8,8 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
@@ -57,38 +56,6 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
 			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
 		return cf.get();
 		}
-	}
-	@Override
-	public void storekv(Comparable index, Object instance) throws IOException {
-		asynchClient.storekv(index, instance);	
-	}
-	@Override
-	public void storekv(Alias alias, Comparable index, Object instance) throws IOException {
-		asynchClient.storekv(alias, index, instance);;
-	}
-	@Override
-	public Object getByIndex(DBKey index) throws IOException {
-		return asynchClient.getByIndex(index);
-	}
-	@Override
-	public Object getByIndex(Alias alias, DBKey index) throws IOException {
-		return asynchClient.getByIndex(alias, index);
-	}
-	@Override
-	public Object get(Object instance) throws IOException {
-		return asynchClient.get(instance);
-	}
-	@Override
-	public Object get(Alias alias, Object instance) throws IOException {
-		return asynchClient.get(alias, instance);
-	}
-	@Override
-	public Object remove(Object instance) throws IOException {
-		return asynchClient.remove(instance);
-	}
-	@Override
-	public Object remove(Alias alias, Object instance) throws IOException {
-		return asynchClient.remove(alias, instance);
 	}
 
 	public void close() throws IOException {

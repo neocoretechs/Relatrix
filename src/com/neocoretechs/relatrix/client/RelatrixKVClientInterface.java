@@ -10,7 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 
 import java.util.List;
 
-public interface RelatrixKVClientInterface extends ClientNonTransactionInterface{
+public interface RelatrixKVClientInterface extends ClientInterface{
 
 	public Stream findHeadMapKVStream(Comparable arg1) throws java.io.IOException;
 

@@ -2288,14 +2288,10 @@ public abstract class AsynchRelatrixClientInterfaceJsonImpl implements AsynchRel
           }
 	}
 	@Override
-	public void remove(Alias arg1,Comparable arg2,Comparable arg3) {
+	public CompletableFuture remove(Alias arg1,Comparable arg2,Comparable arg3) {
 		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "remove", arg1, arg2, arg3);
 		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
+        return cf;
 	}
 	@Override
 	public void remove(Object arg1,Object arg2) {
@@ -2307,5 +2303,47 @@ public abstract class AsynchRelatrixClientInterfaceJsonImpl implements AsynchRel
                     throw new RuntimeException(e);
           }
 	}
+	@Override
+	public CompletableFuture<Relation> store(Comparable arg1, Comparable arg2, Comparable arg3) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "store", arg1, arg2, arg3);
+		return queueCommand(s).thenApply(result -> (Relation) result);
+	}
+
+	@Override
+	public CompletableFuture<Relation> store(Alias arg1, Comparable arg2, Comparable arg3, Comparable arg4) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "store", arg1, arg2, arg3, arg4);
+		return queueCommand(s).thenApply(result -> (Relation) result);
+	}
+
+	@Override
+	public CompletableFuture<Boolean> contains(Alias arg1, Comparable arg2) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "contains", arg1, arg2);
+		return queueCommand(s).thenApply(result -> (Boolean) result);
+	}
+
+	@Override
+	public CompletableFuture<Boolean> contains(Comparable arg1) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "contains", arg1);
+		return queueCommand(s).thenApply(result -> (Boolean) result);	
+	}
+
+	@Override
+	public CompletableFuture<Void> remove(Alias arg1, Comparable arg2) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "remove", arg1, arg2);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+
+	@Override
+	public CompletableFuture<Void> remove(Comparable arg1) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "remove", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+
+	@Override
+	public CompletableFuture<Void> remove(Comparable arg1, Comparable arg2) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "remove", arg1, arg2);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+
 }
 

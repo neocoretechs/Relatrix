@@ -6,11 +6,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
+
+import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
 import com.neocoretechs.relatrix.client.json.util.Converter;
+import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -37,6 +43,10 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		asynchClient = new AsynchRelatrixKVClientJson(remoteNode, remotePort);
 		Converter.setClassLoader(RelatrixKV.classLoader);
 	}
+	public RelatrixKVClientJson(String remoteNode, int remotePort, HandlerClassLoader bootLoader)  throws IOException {
+		asynchClient = new AsynchRelatrixKVClientJson(remoteNode, remotePort, bootLoader);
+		Converter.setClassLoader(RelatrixKV.classLoader);
+	}
 	@Override
 	public UUID getSession() {
 		return asynchClient.getSession();
@@ -54,6 +64,10 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
 		return cf.get();
+	}
+	
+	public void createClass(JSONObject jo) {
+		asynchClient.createClass(jo);
 	}
 	
 	static int i = 0;
@@ -92,4 +106,5 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		//rc.send(rs);
 	}
 
+	
 }

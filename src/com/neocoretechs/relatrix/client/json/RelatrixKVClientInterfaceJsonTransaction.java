@@ -6,12 +6,12 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
 
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixKVClientTransactionInterface;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 
-public interface RelatrixKVClientInterfaceJsonTransaction extends ClientTransactionInterface{
+public interface RelatrixKVClientInterfaceJsonTransaction extends RelatrixKVClientTransactionInterface {
 
 	public String[][] getAliases();
 
@@ -174,6 +174,84 @@ public interface RelatrixKVClientInterfaceJsonTransaction extends ClientTransact
 	public Object remove(TransactionId arg1,Object arg2) throws java.io.IOException;
 
 	public Object remove(Alias arg1,TransactionId arg2,Object arg3) throws java.io.IOException;
+	//--
+	
+	public Stream findSubMapStream(Alias arg1, TransactionId arg2, Comparable arg3, Comparable arg4)throws IOException;
 
+	public Stream findSubMapStream(TransactionId arg1, Comparable arg2, Comparable arg3) throws IOException;
+
+	public Iterator findTailMapKV(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException; 
+
+	public Iterator findTailMapKV(TransactionId arg1, Comparable arg2) throws IOException; 
+	
+	public Stream findTailMapStream(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException;
+
+	public Stream findTailMapStream(TransactionId arg1, Comparable arg2) throws IOException;
+
+	public Iterator findHeadMapKV(TransactionId arg1, Comparable arg2) throws IOException;
+	
+	public Iterator findHeadMapKV(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException; 
+	
+	public Stream findSubMapKVStream(TransactionId arg1, Comparable arg2, Comparable arg3) throws IOException; 
+
+	public Stream findSubMapKVStream(Alias arg1, TransactionId arg2, Comparable arg3, Comparable arg4) throws IOException;
+
+	public Iterator findTailMap(TransactionId arg1, Comparable arg2) throws IOException;
+
+	public Iterator findTailMap(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException; 
+
+	public Iterator findHeadMap(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException;
+
+	public Iterator findHeadMap(TransactionId arg1, Comparable arg2) throws IOException;
+
+	public Stream findHeadMapStream(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException;
+	
+	public Stream findHeadMapStream(TransactionId arg1, Comparable arg2) throws IOException;
+
+	public Iterator findSubMap(TransactionId arg1, Comparable arg2, Comparable arg3) throws IOException;
+
+	public Iterator findSubMap(Alias arg1, TransactionId arg2, Comparable arg3, Comparable arg4) throws IOException;
+
+	public Object nearest(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException; 
+
+	public Object nearest(TransactionId arg1, Comparable arg2) throws IOException; 
+
+	public Iterator findSubMapKV(Alias arg1, TransactionId arg2, Comparable arg3, Comparable arg4) throws IOException;
+
+	public Iterator findSubMapKV(TransactionId arg1, Comparable arg2, Comparable arg3) throws IOException;
+
+	public Stream findHeadMapKVStream(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException; 
+	
+	public Stream findHeadMapKVStream(TransactionId arg1, Comparable arg2) throws IOException;
+	
+	public Stream findTailMapKVStream(TransactionId arg1, Comparable arg2) throws IOException; 
+	
+	public Stream findTailMapKVStream(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException;
+	
+	public void store(TransactionId arg1, Comparable arg2, Object arg3) throws IOException;
+
+	public void store(Alias arg1, TransactionId arg2, Comparable arg3, Object arg4) throws IOException;
+	
+	public boolean contains(Alias arg1, TransactionId arg2, Class arg3, Comparable arg4) throws IOException;
+
+	public boolean contains(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException;
+	
+	public boolean contains(TransactionId arg1, Class arg2, Comparable arg3) throws IOException;
+	
+	public boolean contains(TransactionId arg1, Comparable arg2) throws IOException ;
+	
+	public Object get(TransactionId arg1, Class arg2, Comparable arg3) throws IOException; 
+	
+	public Object get(Alias arg1, TransactionId arg2, Class arg3, Comparable arg4) throws IOException; 
+	
+	public Object get(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException;
+	
+	public Object get(TransactionId arg1, Comparable arg2) throws IOException;
+	
+	public void remove(TransactionId arg1, Comparable arg2) throws IOException ;
+	
+	public void remove(Alias arg1, TransactionId arg2, Comparable arg3) throws IOException; 
+	
 }
+
 

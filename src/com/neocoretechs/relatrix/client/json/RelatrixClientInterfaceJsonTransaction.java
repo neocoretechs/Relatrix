@@ -10,10 +10,10 @@ import com.neocoretechs.rocksack.TransactionId;
 import java.util.ArrayList;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 
 
-public interface RelatrixClientInterfaceJsonTransaction extends ClientTransactionInterface{
+public interface RelatrixClientInterfaceJsonTransaction extends RelatrixClientTransactionInterface{
 
 	public String getAlias(Alias arg1);
 
@@ -528,6 +528,9 @@ public interface RelatrixClientInterfaceJsonTransaction extends ClientTransactio
 	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
 	public void remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
-
+	
+	public Relation store(Alias arg1, TransactionId arg2, Comparable arg3, Comparable arg4, Comparable arg5) throws IOException;
+	
+	public Relation store(TransactionId arg1, Comparable arg2, Comparable arg3, Comparable arg4) throws IOException;
 }
 

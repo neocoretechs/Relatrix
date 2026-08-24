@@ -11,12 +11,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.TransactionId;
 
-import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
@@ -26,11 +24,10 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransactionInterfaceImpl;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
-import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.client.json.RelatrixTransactionStatementJson;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
@@ -56,7 +53,7 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 	private int remotePort;
 	private HandlerClassLoader classLoader;
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandlerJson workerHandler;
+	protected ConnectionHandler workerHandler;
 	private UUID session = UUID.randomUUID();
 	protected RemoteIteratorClient iteratorClient;
 	
@@ -86,7 +83,7 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if( DEBUG ) {
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}
@@ -208,7 +205,7 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 	public static void main(String[] args) throws Exception {
 		AsynchRelatrixClientTransactionJson rc = new AsynchRelatrixClientTransactionJson(args[0],Integer.parseInt(args[1]));
 		TransactionId xid = rc.getTransactionId();
-		RelatrixTransactionStatement rs = null;
+		RelatrixTransactionStatementJson rs = null;
 		switch(args.length) {
 			case 4:
 				System.out.println("queueing..");
@@ -222,16 +219,16 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],xid,args[3]);
+				rs = new RelatrixTransactionStatementJson(rc.getSession(),args[2],xid,args[3]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(rs.getSession(),args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatementJson(rs.getSession(),args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatementJson(rc.getSession(),args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatementJson(rc.getSession(),args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

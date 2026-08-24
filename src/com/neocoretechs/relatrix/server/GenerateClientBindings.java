@@ -36,7 +36,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  */
 public class GenerateClientBindings {
 	public static String outputClass = "RelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
-	public static String extend = "ClientNonTransactionInterface"; // extends this interface
+	public static String extend = "ClientInterface"; // extends this interface
 	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
 	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
@@ -88,7 +88,7 @@ public class GenerateClientBindings {
 			packageDecl = args[6];
 		if(args.length > 7)
 			extend = args[7];
-		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0, false);
+		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0);
 		MethodNamesAndParams rmnap = sim.getMethodNamesAndParams();
 		generateInterface(rmnap);
 		generateImpl(rmnap);

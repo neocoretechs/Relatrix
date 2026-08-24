@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.Alias;
@@ -23,12 +23,12 @@ import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.json.RelatrixKVTransactionStatementJson;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
@@ -53,7 +53,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 	protected RemoteIteratorClient iteratorClient;
 	
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandlerJson workerHandler;
+	protected ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -74,7 +74,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.println("Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -187,86 +187,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket);
 	}
 	
-	@Override
-	public Object get(TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "get", transactionId, instance);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    return cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
 
-	@Override
-	public Object get(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "get", alias, transactionId, instance);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    return cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-
-	@Override
-	public void remove(TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "remove", transactionId, instance);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-
-	@Override
-	public void remove(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "remove", alias, transactionId, instance);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public void storekv(TransactionId transactionId, Comparable index, Object instance) {
-		store(transactionId, index, instance);	
-	}
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public void storekv(Alias alias, TransactionId transactionId, Comparable instance, Object index) {
-		store(alias, transactionId, instance, index);
-	}
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws IOException {
-		return getByIndex(alias, transactionId, index);
-	}
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public Object getByIndex(TransactionId transactionId, Comparable index) throws IOException {
-		return getByIndex(transactionId, index);
-	}
 
 	static int i = 0;
 	/**

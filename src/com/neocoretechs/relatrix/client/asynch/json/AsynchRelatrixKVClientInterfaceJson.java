@@ -10,7 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.relatrix.key.DBKey;
 
-public interface AsynchRelatrixKVClientInterfaceJson extends com.neocoretechs.relatrix.client.ClientNonTransactionInterface{
+public interface AsynchRelatrixKVClientInterfaceJson extends com.neocoretechs.relatrix.client.ClientInterface{
 
 	public CompletableFuture<Object> nearest(Alias arg1,Object arg2);
 

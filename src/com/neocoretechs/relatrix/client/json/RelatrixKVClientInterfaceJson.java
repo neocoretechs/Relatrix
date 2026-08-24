@@ -6,12 +6,12 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 
 
-public interface RelatrixKVClientInterfaceJson extends ClientNonTransactionInterface{
+public interface RelatrixKVClientInterfaceJson extends RelatrixKVClientInterface {
 
 	public void removeAlias(Alias arg1) throws java.io.IOException;
 
@@ -143,5 +143,81 @@ public interface RelatrixKVClientInterfaceJson extends ClientNonTransactionInter
 
 	public Object remove(Object arg1) throws java.io.IOException;
 
+	//----
+	
+	public Stream findHeadMapKVStream(Comparable arg1) throws IOException;
+	
+	public Stream findHeadMapKVStream(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Stream findTailMapKVStream(Comparable arg1) throws IOException;
+	
+	public Stream findTailMapKVStream(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Stream findHeadMapStream(Comparable arg1) throws IOException;
+	
+	public Stream findHeadMapStream(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Iterator findHeadMap(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Iterator findHeadMap(Comparable arg1) throws IOException;
+	
+	public Stream findTailMapStream(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Stream findTailMapStream(Comparable arg1) throws IOException;
+	
+	public Iterator findSubMapKV(Alias arg1, Comparable arg2, Comparable arg3) throws IOException;
+	
+	public Iterator findSubMapKV(Comparable arg1, Comparable arg2) throws IOException;
+	
+	public Stream findSubMapStream(Comparable arg1, Comparable arg2) throws IOException;
+	
+	public Stream findSubMapStream(Alias arg1, Comparable arg2, Comparable arg3) throws IOException;
+	
+	public Iterator findHeadMapKV(Comparable arg1) throws IOException;
+	
+	public Iterator findHeadMapKV(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Object nearest(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Object nearest(Comparable arg1) throws IOException;
+	
+	public Iterator findTailMapKV(Comparable arg1) throws IOException;
+	
+	public Iterator findTailMapKV(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Stream findSubMapKVStream(Comparable arg1, Comparable arg2) throws IOException;
+	
+	public Stream findSubMapKVStream(Alias arg1, Comparable arg2, Comparable arg3) throws IOException;
+	
+	public Iterator findSubMap(Alias arg1, Comparable arg2, Comparable arg3) throws IOException;
+	
+	public Iterator findSubMap(Comparable arg1, Comparable arg2) throws IOException;
+	
+	public Iterator findTailMap(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Iterator findTailMap(Comparable arg1) throws IOException;
+	
+	public boolean containsValue(Class arg1, Comparable arg2) throws IOException;
+	
+	public void store(Comparable arg1, Object arg2) throws IOException;
+	
+	public void store(Alias arg1, Comparable arg2, Object arg3) throws IOException;
+	
+	public boolean contains(Comparable arg1) throws IOException;
+	
+	public boolean contains(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Object get(Alias arg1, Comparable arg2) throws IOException;	
+	
+	public Object get(Comparable arg1) throws IOException;
+	
+	public Object remove(Alias arg1, Comparable arg2) throws IOException;
+	
+	public Object remove(Comparable arg1) throws IOException;
+	
+	public DBKey getNewKey() throws IOException;
+
 }
+	
+
 

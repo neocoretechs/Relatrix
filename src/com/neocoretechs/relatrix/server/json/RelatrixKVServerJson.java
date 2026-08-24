@@ -172,7 +172,6 @@ public class RelatrixKVServerJson extends TCPServer {
                     }
                     // Create the worker, it in turn creates a WorkerRequestProcessor
                 	IndexResolver indexResolver = new IndexResolver(true);
-            		indexResolver.setLocalJson();
             		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
                     uworker = new TCPWorker(datasocket, RelatrixKVJson.classLoader, pec);
                     dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);

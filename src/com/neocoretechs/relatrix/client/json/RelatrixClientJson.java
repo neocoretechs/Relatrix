@@ -7,9 +7,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientJson;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * This class functions as client to the RelatrixServerJson Worker on a remote node.
@@ -86,6 +88,7 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 		Object cf = rc.sendCommand(rs);
 		System.out.println(cf);
 	}
+	
 
 
 }

@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
@@ -105,5 +106,6 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 		System.out.println(rc.sendCommand(rs));
 		//rc.endTransaction(xid);
 	}
+
 
 }

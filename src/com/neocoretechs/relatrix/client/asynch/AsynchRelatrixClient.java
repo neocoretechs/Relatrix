@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
@@ -31,7 +31,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface, ClientNonTransactionInterface, Runnable {
+public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface, ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;

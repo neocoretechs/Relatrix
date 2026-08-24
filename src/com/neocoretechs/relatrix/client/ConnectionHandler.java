@@ -216,6 +216,7 @@ public class ConnectionHandler {
 					} catch (ClassNotFoundException | IOException e) {
 						// fatal for this connection: log, fail outstanding, and break
 						System.err.printf("Reader exception on %s: %s%n", in.toString(), e);
+						e.printStackTrace();
 						//failOutstandingRequests(e);
 						break;
 					} catch (InterruptedException ie) {
@@ -275,6 +276,7 @@ public class ConnectionHandler {
 						}
 					} catch (IOException ioe) {
 						System.err.printf("Writer IOException on %s: %s%n", out.toString(), ioe);
+						ioe.printStackTrace();
 						//failOutstandingRequests(ioe);
 						break;
 					} catch (InterruptedException ie) {
@@ -285,6 +287,7 @@ public class ConnectionHandler {
 				}
 			} catch (Throwable t) {
 				System.err.printf("Writer top-level failure on %s: %s%n", out.toString(), t);
+				t.printStackTrace();
 				//failOutstandingRequests(t);
 			} finally {
 				shouldRun = false;

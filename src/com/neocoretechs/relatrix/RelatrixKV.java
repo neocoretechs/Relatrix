@@ -52,7 +52,7 @@ public final class RelatrixKV {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
+					classLoader.connectToLocalRepository(false); // transaction param
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -179,7 +179,7 @@ public final class RelatrixKV {
 	 */
 	public static void loadClassFromPath(String pack, String path) throws IOException {
 		Path p = FileSystems.getDefault().getPath(path);
-		HandlerClassLoader.setBytesInRepository(pack,p);
+		classLoader.setBytesInRepository(pack,p);
 	}
 	/**
 	 * Load the jar file located at jar into the repository
@@ -187,7 +187,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void loadClassFromJar(String jar) throws IOException {
-		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+		classLoader.setBytesInRepositoryFromJar(jar);
 	}
 	/**
 	 * Remove the stated package from the declared package and all subpackages from the bytecode repository
@@ -197,7 +197,7 @@ public final class RelatrixKV {
 	 */
 	public static void removePackageFromRepository(String pack) throws IOException {
 		try {
-			HandlerClassLoader.removeBytesInRepository(pack);
+			classLoader.removeBytesInRepository(pack);
 		} catch (BytecodeNotFoundInRepositoryException e) {
 			throw new IOException(e);
 		}

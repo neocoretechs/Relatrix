@@ -43,8 +43,8 @@ public class ServerInvokeMethod {
      * @param tclass The class name we are targeting
      * @param skipArgs > 0 if we want to skip first args.
      */
-    public ServerInvokeMethod(ClassLoader cl, String tclass, int tskipArgs, boolean hasRemote) throws ClassNotFoundException {  
-    	hcl = new HandlerClassLoader(cl, hasRemote);
+    public ServerInvokeMethod(ClassLoader cl, String tclass, int tskipArgs) throws ClassNotFoundException {  
+    	hcl = new HandlerClassLoader(cl);
     	init(tclass,skipArgs);
     }
     /**

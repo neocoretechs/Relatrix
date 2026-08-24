@@ -2,34 +2,37 @@ package com.neocoretechs.relatrix.client.asynch.json;
 
 import java.io.IOException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import org.json.JSONObject;
+
+import com.neocoretechs.relatrix.client.ClientInterface;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
 import com.neocoretechs.relatrix.client.json.RelatrixKVStatementJson;
+import com.neocoretechs.relatrix.client.json.util.Converter;
+import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixServer;
+
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -41,7 +44,7 @@ import com.neocoretechs.rocksack.Alias;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJsonImpl implements AsynchRelatrixKVClientInterfaceJson, ClientNonTransactionInterface, Runnable {
+public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJsonImpl implements AsynchRelatrixKVClientInterfaceJson, ClientInterface, Runnable {
 	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
@@ -51,7 +54,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	private int remotePort;
 	private HandlerClassLoader classLoader;
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandlerJson workerHandler;
+	protected ConnectionHandler workerHandler;
 	private UUID session = UUID.randomUUID();
 	protected RemoteIteratorClient iteratorClient;
 	
@@ -72,9 +75,22 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 		this.remotePort = remotePort;
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
+		classLoader.connectToRemoteJsonRepository(this);
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
+		if(DEBUG)
+			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
+		SynchronizedThreadManager.getInstance().spin(this);
+	}
+	public AsynchRelatrixKVClientJson(String remoteNode, int remotePort, HandlerClassLoader bootLoader)  throws IOException {
+		this.remoteNode = remoteNode;
+		this.remotePort = remotePort;
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
+		classLoader = bootLoader;
+		Thread.currentThread().setContextClassLoader(classLoader);
+		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -97,9 +113,16 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	public Iterator<?> getIterator() {
 		return this.iteratorClient;
 	}
+	
+	public void createClass(JSONObject jo) {
+		String className = Converter.getMorphicClassname(jo);
+       	byte[] ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   
+    	classLoader.defineAClass(className, ctype);
+		classLoader.setBytesInRepository(className, ctype);
+	}
 	/**
 	* Set up the socket 
-	 */
+	*/
 	@Override
 	public void run() {
   	    try {
@@ -215,38 +238,6 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	@Override
 	public String toString() {
 		return String.format("%s RemoteNode:%s RemotePort:%d output socket:%s handler:%s queue:%d%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, workerHandler, queuedRequests.length());
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public void storekv(Comparable index, Object instance) {
-		store(index, instance);
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public void storekv(Alias alias, Comparable index, Object instance) {
-		store(alias, index, instance);
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public Object getByIndex(DBKey index) {
-		return get(index);
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public Object getByIndex(Alias alias, DBKey index) {
-		return get(alias, index);
 	}
 	
 	static int i = 0;

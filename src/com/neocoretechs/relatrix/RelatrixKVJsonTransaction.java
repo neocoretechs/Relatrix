@@ -72,7 +72,7 @@ public final class RelatrixKVJsonTransaction {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					HandlerClassLoader.connectToLocalRepository(null);
+					classLoader.connectToLocalRepository(true); // transaction param
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -373,10 +373,10 @@ public final class RelatrixKVJsonTransaction {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -410,10 +410,10 @@ public final class RelatrixKVJsonTransaction {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -439,10 +439,10 @@ public final class RelatrixKVJsonTransaction {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -467,10 +467,10 @@ public final class RelatrixKVJsonTransaction {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -957,7 +957,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	public static void loadClassFromPath(String pack, String path) throws IOException {
 		Path p = FileSystems.getDefault().getPath(path);
-		HandlerClassLoader.setBytesInRepository(pack,p);
+		classLoader.setBytesInRepository(pack,p);
 	}
 	/**
 	 * Load the jar file located at jar into the repository
@@ -965,7 +965,7 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IOException
 	 */
 	public static void loadClassFromJar(String jar) throws IOException {
-		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+		classLoader.setBytesInRepositoryFromJar(jar);
 	}
 	/**
 	 * Remove the stated package from the declared package and all subpackages from the bytecode repository

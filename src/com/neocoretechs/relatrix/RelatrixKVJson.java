@@ -77,7 +77,7 @@ public final class RelatrixKVJson {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
+					classLoader.connectToLocalRepository(false); // transaction param
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -385,10 +385,10 @@ public final class RelatrixKVJson {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -415,10 +415,10 @@ public final class RelatrixKVJson {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -494,7 +494,14 @@ public final class RelatrixKVJson {
 		BufferedMap bm;
 		public Comparable<?> item; 
 	}
-	
+	/**
+	 * Get the BufferedMap and morphic item from the translated JSONObject or the pass-through Comparable
+	 * of the key parameter. 
+	 * @param key The target instance
+	 * @return The WorkingSet instance of BufferedMap and Comparable item
+	 * @throws IOException if target is not JSONObject or Comparable
+	 * @throws IllegalAccessException
+	 */
 	public static WorkingSet getWorkingSet(Object key) throws IOException, IllegalAccessException {
 		WorkingSet ws = new WorkingSet();
 		Comparable<?> jkey;
@@ -658,10 +665,10 @@ public final class RelatrixKVJson {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -683,10 +690,10 @@ public final class RelatrixKVJson {
 				c = Class.forName(cjson, false, classLoader);
 			} catch (ClassNotFoundException cnf) {
 				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+					ctype = classLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
 					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+					classLoader.setBytesInRepository(cjson, ctype);
 				}
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
@@ -806,7 +813,7 @@ public final class RelatrixKVJson {
 	 */
 	public static void loadClassFromPath(String pack, String path) throws IOException {
 		Path p = FileSystems.getDefault().getPath(path);
-		HandlerClassLoader.setBytesInRepository(pack,p);
+		classLoader.setBytesInRepository(pack,p);
 	}
 	/**
 	 * Load the jar file located at jar into the repository
@@ -814,7 +821,7 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 */
 	public static void loadClassFromJar(String jar) throws IOException {
-		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+		classLoader.setBytesInRepositoryFromJar(jar);
 	}
 	/**
 	 * Remove the stated package from the declared package and all subpackages from the bytecode repository
@@ -824,7 +831,7 @@ public final class RelatrixKVJson {
 	 */
 	public static void removePackageFromRepository(String pack) throws IOException {
 		try {
-			HandlerClassLoader.removeBytesInRepository(pack);
+			classLoader.removeBytesInRepository(pack);
 		} catch (BytecodeNotFoundInRepositoryException e) {
 			throw new IOException(e);
 		}

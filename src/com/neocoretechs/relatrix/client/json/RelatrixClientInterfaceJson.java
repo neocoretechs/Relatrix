@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 
 
-public interface RelatrixClientInterfaceJson extends ClientNonTransactionInterface{
+public interface RelatrixClientInterfaceJson extends RelatrixClientInterface{
 
 	public Stream findTailStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
 
@@ -511,6 +511,14 @@ public interface RelatrixClientInterfaceJson extends ClientNonTransactionInterfa
 	public void remove(Object arg1,Object arg2) throws java.io.IOException;
 
 	public Object remove(Object arg1) throws java.io.IOException;
+	
+	public Relation store(Comparable arg1, Comparable arg2, Comparable arg3) throws IOException;
+	
+	public Relation store(Alias arg1, Comparable arg2, Comparable arg3, Comparable arg4) throws IOException;
+	
+	public void remove(Comparable arg1) throws IOException;
+
+	public void remove(Comparable arg1, Comparable arg2) throws IOException;
 
 }
 

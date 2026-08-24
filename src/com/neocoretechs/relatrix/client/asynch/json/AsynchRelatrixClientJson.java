@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.client.asynch.json;
 
 import java.io.IOException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -12,23 +11,23 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.RelatrixJson;
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixServerJson} 
@@ -38,7 +37,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonImpl implements AsynchRelatrixClientInterfaceJson, ClientNonTransactionInterface, Runnable {
+public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonImpl implements AsynchRelatrixClientInterfaceJson, ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
@@ -49,7 +48,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	private HandlerClassLoader classLoader;
 	private UUID session = UUID.randomUUID();
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandlerJson workerHandler;
+	protected ConnectionHandler workerHandler;
 	protected RemoteIteratorClient iteratorClient;
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -71,7 +70,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'

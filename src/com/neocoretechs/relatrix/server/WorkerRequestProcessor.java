@@ -3,8 +3,6 @@ package com.neocoretechs.relatrix.server;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import java.util.concurrent.CountDownLatch;
-
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
@@ -16,7 +14,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  * The intent is to separate the processing of requests and the maintenance of latches, etc from the communication
  * processing. In addition, increased parallelism can be achieved by separation of these tasks.
  * The WorkerRequestProcessors are responsible for setting the fields for the countdownlatch.<p>
- * This WorkerRequestProcessor is created with a {@link TCPWorker}, which has a {@link ConnectionHandlerJson}.
+ * This WorkerRequestProcessor is created with a {@link TCPWorker}, which has a {@link ConnectionHandler}.
  * @author Jonathan Groff  Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */

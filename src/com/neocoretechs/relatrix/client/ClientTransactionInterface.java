@@ -21,20 +21,5 @@ public interface ClientTransactionInterface extends ClientInterface {
 	
 	public void rollback(Alias alias, TransactionId transactionId) throws IOException;
 	
-	public void storekv(TransactionId transactionId, Comparable index, Object instance) throws IOException;
-
-	public void storekv(Alias alias, TransactionId transactionId, Comparable instance, Object index) throws IOException;
-
-	public Object get(TransactionId transactionId, Comparable instance) throws IOException;
-	
-	public Object get(Alias alias, TransactionId transactionId, Comparable instance) throws IOException;
-	
-	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws IOException;
-	
-	public Object getByIndex(TransactionId transactionId, Comparable index) throws IOException;
-	
-	public void remove(TransactionId transactionId, Comparable instance) throws IOException;
-	
-	public void remove(Alias alias, TransactionId transactionId, Comparable instance) throws IOException;
 
 }

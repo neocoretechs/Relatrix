@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
+import java.io.IOException;
 import java.io.Serializable;
 
 import java.net.InetSocketAddress;
@@ -11,8 +12,11 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.KeyValue;
-
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
@@ -48,8 +52,10 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 		this.params = new Class[0];
     }
     /**
-     * Prep RelatrixStatement to send remote method call
-     * @param session TODO
+     * Send to remote method call
+     * @param session session Id
+     * @param tmeth remote method
+     * @param o1 params to remote method
      */
     public RelatrixKVStatement(UUID session, String tmeth, Object ... o1) {
     	this.methodName = tmeth;
@@ -63,6 +69,32 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
  		}
     }
    
+    protected void unpackParamArray() {
+		for(int i = 0; i < paramArray.length; i++) {
+			if(paramArray[i] != null && paramArray[i].getClass() == TransportMorphism.class) {
+				paramArray[i] = TransportMorphism.createMorphism((TransportMorphism)paramArray[i]);
+				if(paramArray[i] instanceof AbstractRelation && ((AbstractRelation)paramArray[i]).getIdentity() == null) {
+					try {
+						IndexInstanceTable.resolve((AbstractRelation)paramArray[i]);
+					} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
+				}		
+			 	if(DEBUG)
+    				System.out.printf("%s.unpackParamArray was TransportMorphism.class %d.) %s%n", this.getClass().getName(),i,paramArray[i]);
+			} else {
+				if(paramArray[i] instanceof TransportMorphismInterface) {
+					((TransportMorphismInterface)paramArray[i]).unpackFromTransport();
+				 	if(DEBUG)
+	    				System.out.printf("%s.unpackParamArray was instanceof TransportMorphismInterface %d.) %s%n", this.getClass().getName(),i,paramArray[i]);
+				}
+			}
+		}
+	 	if(DEBUG)
+			System.out.printf("%s.unpackParamArray%n", this.getClass().getName());
+	}
+	
     @Override
 	public UUID getSession() {
     	return session; 

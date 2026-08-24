@@ -190,42 +190,6 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket);
 	}
 	
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public void storekv(TransactionId transactionId, Comparable index, Object instance) throws IOException {
-		store(transactionId, index, instance);	
-	}
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public void storekv(Alias alias, TransactionId transactionId, Comparable instance, Object index) throws IOException {
-		store(alias, transactionId, instance, index);
-	}
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws IOException {
-		return getByIndex(alias, transactionId, index);
-	}
-	/**
-	 * This method is for compatibility with remote Relation resolution through the RelatrixKV,
-	 * which doesnt have the required to methods resolve a relation index, but we can jigger it 
-	 * such that it can be done like this
-	 */
-	@Override
-	public Object getByIndex(TransactionId transactionId, Comparable index) throws IOException {
-		return getByIndex(transactionId, index);
-	}
 
 	static int i = 0;
 	/**

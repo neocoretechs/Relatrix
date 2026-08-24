@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientInterface;
 
-public interface AsynchRelatrixClientInterfaceJson extends com.neocoretechs.relatrix.client.ClientNonTransactionInterface{
+public interface AsynchRelatrixClientInterfaceJson extends AsynchRelatrixClientInterface{
 
 	public CompletableFuture<String[][]> getAliases();
 
@@ -507,9 +508,24 @@ public interface AsynchRelatrixClientInterfaceJson extends com.neocoretechs.rela
 
 	public Object remove(Object arg1);
 
-	public void remove(Alias arg1,Comparable arg2,Comparable arg3);
+	public CompletableFuture<Void> remove(Alias arg1,Comparable arg2,Comparable arg3);
 
 	public void remove(Object arg1,Object arg2);
+	//--
+
+	public CompletableFuture<Relation> store(Comparable arg1, Comparable arg2, Comparable arg3);
+
+	public CompletableFuture<Relation> store(Alias arg1, Comparable arg2, Comparable arg3, Comparable arg4);
+	
+	public CompletableFuture<Boolean> contains(Alias arg1, Comparable arg2);
+
+	public CompletableFuture<Boolean> contains(Comparable arg1);
+
+	public CompletableFuture<Void> remove(Alias arg1, Comparable arg2);
+
+	public CompletableFuture<Void> remove(Comparable arg1);
+
+	public CompletableFuture<Void> remove(Comparable arg1, Comparable arg2);
 
 }
 

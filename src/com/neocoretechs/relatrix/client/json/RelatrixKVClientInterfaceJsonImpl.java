@@ -24,7 +24,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findSubMap(Alias arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMap", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMap", arg1, arg2, arg3);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -33,7 +33,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findSubMap(Object arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMap", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMap", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -42,7 +42,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object nearest(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "nearest", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "nearest", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -51,7 +51,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object nearest(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "nearest", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "nearest", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -60,7 +60,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object lastValue(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "lastValue", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "lastValue", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -69,7 +69,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object lastValue(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "lastValue", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "lastValue", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -78,7 +78,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public String getAlias(Alias arg1) {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "getAlias", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "getAlias", arg1);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -87,7 +87,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void storekv(Alias arg1,Comparable arg2,Object arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "storekv", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "storekv", arg1, arg2, arg3);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -96,7 +96,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void storekv(Comparable arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "storekv", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "storekv", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -105,7 +105,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findTailMapStream(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMapStream", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapStream", arg1);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -114,7 +114,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findTailMapStream(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMapStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -123,7 +123,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findTailMapKV(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMapKV", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -132,7 +132,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findTailMapKV(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMapKV", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -141,7 +141,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findSubMapKV(Object arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMapKV", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKV", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -150,7 +150,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findSubMapKV(Alias arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMapKV", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKV", arg1, arg2, arg3);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -159,7 +159,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findTailMapKVStream(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMapKVStream", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKVStream", arg1);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -168,7 +168,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findTailMapKVStream(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMapKVStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKVStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -177,7 +177,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findHeadMapStream(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMapStream", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapStream", arg1);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -186,7 +186,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findHeadMapStream(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMapStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -195,7 +195,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findHeadMap(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMap", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMap", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -204,7 +204,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findHeadMap(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMap", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMap", arg1);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -213,7 +213,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findHeadMapKV(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMapKV", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKV", arg1);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -222,7 +222,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findHeadMapKV(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMapKV", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKV", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -231,7 +231,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findTailMap(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMap", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMap", arg1);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -240,7 +240,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator findTailMap(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findTailMap", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMap", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -249,7 +249,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findHeadMapKVStream(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMapKVStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKVStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -258,7 +258,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findHeadMapKVStream(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findHeadMapKVStream", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKVStream", arg1);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -267,7 +267,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findSubMapKVStream(Alias arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMapKVStream", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKVStream", arg1, arg2, arg3);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -276,7 +276,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findSubMapKVStream(Object arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMapKVStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKVStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -285,7 +285,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findSubMapStream(Object arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMapStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -294,7 +294,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream findSubMapStream(Alias arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "findSubMapStream", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapStream", arg1, arg2, arg3);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -303,7 +303,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream entrySetStream(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "entrySetStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "entrySetStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -312,7 +312,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream entrySetStream(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "entrySetStream", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "entrySetStream", arg1);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -321,7 +321,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream keySetStream(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "keySetStream", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "keySetStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -330,7 +330,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Stream keySetStream(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "keySetStream", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "keySetStream", arg1);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -339,7 +339,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "setRelativeAlias", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "setRelativeAlias", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -348,7 +348,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void setAlias(Alias arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "setAlias", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "setAlias", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -357,7 +357,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void removeAlias(Alias arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "removeAlias", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "removeAlias", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -366,7 +366,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object lastKey(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "lastKey", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "lastKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -375,7 +375,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object lastKey(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "lastKey", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "lastKey", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -384,7 +384,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object firstKey(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "firstKey", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "firstKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -393,7 +393,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object firstKey(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "firstKey", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "firstKey", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -402,7 +402,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object firstValue(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "firstValue", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "firstValue", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -411,7 +411,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object firstValue(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "firstValue", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "firstValue", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -420,7 +420,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public boolean containsValue(Class arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "containsValue", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "containsValue", arg1, arg2);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -429,7 +429,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public boolean containsValue(Alias arg1,Class arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "containsValue", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "containsValue", arg1, arg2, arg3);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -438,7 +438,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator keySet(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "keySet", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "keySet", arg1);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -447,7 +447,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator keySet(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "keySet", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "keySet", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -456,7 +456,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void close(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "close", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "close", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -465,7 +465,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void close(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "close", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "close", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -474,7 +474,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator entrySet(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "entrySet", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "entrySet", arg1);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -483,7 +483,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Iterator entrySet(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "entrySet", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "entrySet", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -492,7 +492,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public boolean contains(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "contains", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "contains", arg1, arg2);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -501,7 +501,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public boolean contains(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "contains", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "contains", arg1);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -510,7 +510,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void store(Alias arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "store", arg1, arg2, arg3);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "store", arg1, arg2, arg3);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -519,7 +519,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public void store(Object arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "store", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "store", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -528,7 +528,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object get(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "get", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "get", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -537,7 +537,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object get(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "get", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "get", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -547,7 +547,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	@Override
 	public Object getByIndex(DBKey arg1) throws IOException
 	{
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "getByIndex", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "getByIndex", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -557,7 +557,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	@Override
 	public Object getByIndex(Alias arg1, DBKey arg2) throws IOException
 	{
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "getByIndex", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "getByIndex", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -566,7 +566,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public long size(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "size", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "size", arg1, arg2);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -575,7 +575,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public long size(Class arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "size", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "size", arg1);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -584,7 +584,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object remove(Alias arg1,Object arg2) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "remove", arg1, arg2);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "remove", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -593,9 +593,333 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	}
 	@Override
 	public Object remove(Object arg1) throws java.io.IOException {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "remove", arg1);
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "remove", arg1);
 		try {
 			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadMapKVStream(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKVStream", arg1);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadMapKVStream(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKVStream", arg1, arg2);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailMapKVStream(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKVStream", arg1);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailMapKVStream(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKVStream", arg1, arg2);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadMapStream(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapStream", arg1);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadMapStream(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapStream", arg1, arg2);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findHeadMap(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMap", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findHeadMap(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMap", arg1);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailMapStream(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapStream", arg1, arg2);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailMapStream(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapStream", arg1);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubMapKV(Alias arg1, Comparable arg2, Comparable arg3) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKV", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubMapKV(Comparable arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKV", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findSubMapStream(Comparable arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapStream", arg1, arg2);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findSubMapStream(Alias arg1, Comparable arg2, Comparable arg3) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapStream", arg1, arg2, arg3);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findHeadMapKV(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKV", arg1);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findHeadMapKV(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMapKV", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object nearest(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "nearest", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object nearest(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "nearest", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findTailMapKV(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findTailMapKV(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findSubMapKVStream(Comparable arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKVStream", arg1, arg2);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findSubMapKVStream(Alias arg1, Comparable arg2, Comparable arg3) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMapKVStream", arg1, arg2, arg3);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubMap(Alias arg1, Comparable arg2, Comparable arg3) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMap", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubMap(Comparable arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findSubMap", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findTailMap(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMap", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findTailMap(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMap", arg1);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public boolean containsValue(Class arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "containsValue", arg1, arg2);
+		try {
+			return (boolean)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void store(Comparable arg1, Object arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "store", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void store(Alias arg1, Comparable arg2, Object arg3) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "store", arg1, arg2, arg3);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public boolean contains(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "contains", arg1);
+		try {
+			return (boolean)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public boolean contains(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "contains", arg1, arg2);
+		try {
+			return (boolean)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object get(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "get", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object get(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "get", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object remove(Alias arg1, Comparable arg2) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "remove", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object remove(Comparable arg1) throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "remove", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public DBKey getNewKey() throws IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(),"getNewKey", new Object[]{});
+		try {
+			return (DBKey)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

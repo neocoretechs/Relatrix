@@ -145,7 +145,7 @@ public final class RelatrixJsonTransaction {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
+					RelatrixKVJsonTransaction.classLoader.connectToLocalRepository(true); // transaction param
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -3849,7 +3849,7 @@ public final class RelatrixJsonTransaction {
 	 */
 	public static void loadClassFromPath(String pack, String path) throws IOException {
 		Path p = FileSystems.getDefault().getPath(path);
-		HandlerClassLoader.setBytesInRepository(pack,p);
+		RelatrixKVJsonTransaction.classLoader.setBytesInRepository(pack,p);
 	}
 	/**
 	 * Load the jar file located at jar into the repository
@@ -3857,7 +3857,7 @@ public final class RelatrixJsonTransaction {
 	 * @throws IOException
 	 */
 	public static void loadClassFromJar(String jar) throws IOException {
-		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+		RelatrixKVJsonTransaction.classLoader.setBytesInRepositoryFromJar(jar);
 	}
 	@ServerMethod
 	public static void flushAndCompactDB(TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException

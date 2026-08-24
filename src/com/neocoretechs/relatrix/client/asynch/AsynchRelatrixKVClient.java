@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.client.asynch;
 
 import java.io.IOException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -12,10 +11,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
@@ -23,15 +21,11 @@ import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 
-import com.neocoretechs.relatrix.key.DBKey;
-
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixServer;
-
-import com.neocoretechs.rocksack.Alias;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVServer} 
@@ -42,7 +36,7 @@ import com.neocoretechs.rocksack.Alias;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl implements AsynchRelatrixKVClientInterface, ClientNonTransactionInterface, Runnable {
+public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl implements AsynchRelatrixKVClientInterface, ClientInterface, Runnable {
 	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
@@ -195,63 +189,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		return session;
 	}
 
-	@Override
-	public Object remove(Alias arg1,Object arg2) {
-		RelatrixKVStatement s = new RelatrixKVStatement(null, "remove", arg1, arg2);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    return cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-	@Override
-	public Object remove(Object arg1) {
-		RelatrixKVStatement s = new RelatrixKVStatement(null, "remove", arg1);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    return cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s queue:%d%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, queuedRequests.length());
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public void storekv(Comparable index, Object instance) throws IOException {
-		store(index, instance);
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public void storekv(Alias alias, Comparable index, Object instance) throws IOException {
-		store(alias, index, instance);
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public Object getByIndex(DBKey index) throws IOException {
-		return get(index);
-	}
-	/**
-	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
-	 * NonTransactionClient interface on the back end.
-	 */
-	@Override
-	public Object getByIndex(Alias alias, DBKey index) throws IOException {
-		return get(alias, index);
-	}
+
 	
 	static int i = 0;
 	/**

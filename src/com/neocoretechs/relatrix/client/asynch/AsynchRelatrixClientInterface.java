@@ -13,9 +13,10 @@ import java.util.ArrayList;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.client.ClientInterface;
 
 
-public interface AsynchRelatrixClientInterface extends com.neocoretechs.relatrix.client.ClientNonTransactionInterface{
+public interface AsynchRelatrixClientInterface extends ClientInterface{
 
 	public CompletableFuture<RelationList> multiStore(ArrayList arg1);
 
