@@ -6,16 +6,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixKVJson;
+
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
 import com.neocoretechs.relatrix.client.json.util.Converter;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -33,19 +33,20 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 	AsynchRelatrixKVClientJson asynchClient;
 
 	/**
-	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
-	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
+	 * Start a RelatrixJson client to a remote server. A WorkerRequestProcessor
+	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server.
+	 * We will invoke {@link AsynchRelatrixKVClientJson} and wrap it, the wrapped class will connect to remote HandlerClassLoader
 	 * @param remoteNode The remote Node
 	 * @param remotePort The remote Port
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixKVClientJson(remoteNode, remotePort);
-		Converter.setClassLoader(RelatrixKV.classLoader);
+		Converter.setClassLoader(RelatrixKVJson.classLoader);
 	}
 	public RelatrixKVClientJson(String remoteNode, int remotePort, HandlerClassLoader bootLoader)  throws IOException {
 		asynchClient = new AsynchRelatrixKVClientJson(remoteNode, remotePort, bootLoader);
-		Converter.setClassLoader(RelatrixKV.classLoader);
+		Converter.setClassLoader(asynchClient.getClassLoader());
 	}
 	@Override
 	public UUID getSession() {
@@ -66,8 +67,8 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		return cf.get();
 	}
 	
-	public void createClass(JSONObject jo) {
-		asynchClient.createClass(jo);
+	public Class<?> createClass(JSONObject jo) {
+		return asynchClient.createClass(jo);
 	}
 	
 	static int i = 0;

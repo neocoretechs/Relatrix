@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,16 +67,15 @@ public final class RelatrixKVTransaction {
 	}	
 
 	public static TransactionalMap getMap(Class type, TransactionId xid) throws IllegalAccessException, IOException {
-		TransactionalMap t = mapCache.get(type.getName());
+		TransactionalMap t = mapCache.get(type.getName()+xid);
 		if(DEBUG)
-			System.out.println("RelatrixKVTransaction getMap "+type+" "+xid);
+			System.out.println("RelatrixKVTransaction getMap "+type.getName()+xid);
 		if(t == null) {
 			if(optimisticConcurrency)
 				t = DatabaseManager.getOptimisticTransactionalMap(type, xid);
 			else
 				t = DatabaseManager.getTransactionalMap(type, xid);
-			mapCache.put(type.getName(), t);
-			return t;
+			mapCache.put(type.getName()+xid, t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);
@@ -84,15 +84,14 @@ public final class RelatrixKVTransaction {
 	
 	public static TransactionalMap getMap(Alias alias, Class type, TransactionId xid) throws IllegalAccessException, IOException {
 		if(DEBUG)
-			System.out.println("RelatrixKVTransaction getMap "+type+" "+xid+" alias:"+alias);
-		TransactionalMap t = mapCache.get(type.getName()+alias.getAlias());
+			System.out.println("RelatrixKVTransaction getMap "+type.getName()+xid+alias.getAlias());
+		TransactionalMap t = mapCache.get(type.getName()+xid+alias.getAlias());
 		if(t == null) {
 			if(optimisticConcurrency)
 				t = DatabaseManager.getOptimisticTransactionalMap(alias, type, xid);
 			else
 				t = DatabaseManager.getTransactionalMap(alias, type, xid);
-			mapCache.put(type.getName()+alias.getAlias(), t);
-			return t;
+			mapCache.put(type.getName()+xid+alias.getAlias(), t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);
@@ -140,6 +139,12 @@ public final class RelatrixKVTransaction {
 	@ServerMethod
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		DatabaseManager.removeAlias(alias);
+		Enumeration<String> c = mapCache.keys();
+		while(c.hasMoreElements()) {
+			String cs = c.nextElement();
+			if(cs.contains(alias.getAlias()))
+				mapCache.remove(cs);
+		}
 	}
 	
 	/**
@@ -190,6 +195,12 @@ public final class RelatrixKVTransaction {
 	@ServerMethod
 	public static void endTransaction(TransactionId xid) throws IOException {
 		DatabaseManager.endTransaction(xid);
+		Enumeration<String> c = mapCache.keys();
+		while(c.hasMoreElements()) {
+			String cs = c.nextElement();
+			if(cs.contains(xid.getTransactionId()))
+				mapCache.remove(cs);
+		}
 	}	
 	
 	@ServerMethod

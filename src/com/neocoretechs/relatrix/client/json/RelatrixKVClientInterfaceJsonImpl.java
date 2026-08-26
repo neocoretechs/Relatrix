@@ -15,7 +15,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	@Override
 	public String[][] getAliases() {
-		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null,"getAliases", new Object[]{});
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(),"getAliases", new Object[]{});
 		try {
 			return (String[][])sendCommand(s);
 		} catch(Exception e) {
@@ -125,6 +125,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	public Iterator findTailMapKV(Object arg1) throws java.io.IOException {
 		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1);
 		try {
+			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Object "+s);
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
@@ -766,6 +767,7 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	public Iterator findTailMapKV(Comparable arg1) throws IOException {
 		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1);
 		try {
+			System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<comparable "+s);
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);

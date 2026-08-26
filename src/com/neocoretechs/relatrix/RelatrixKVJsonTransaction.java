@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -365,7 +366,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	public static TransactionalMap getJsonClass(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
-		TransactionalMap t = mapCache.get(cjson);
+		TransactionalMap t = mapCache.get(cjson+xid);
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -384,8 +385,7 @@ public final class RelatrixKVJsonTransaction {
 				t = DatabaseManager.getOptimisticTransactionalMap(c, xid);
 			else
 				t = DatabaseManager.getTransactionalMap(c, xid);
-			mapCache.put(cjson, t);
-			return t;
+			mapCache.put(cjson+xid, t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);
@@ -402,7 +402,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	public static TransactionalMap getJsonClass(Alias alias, JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
-		TransactionalMap t = mapCache.get(cjson+alias.getAlias());
+		TransactionalMap t = mapCache.get(cjson+xid+alias.getAlias());
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -421,8 +421,7 @@ public final class RelatrixKVJsonTransaction {
 					t = DatabaseManager.getOptimisticTransactionalMap(alias, c, xid);
 				else
 					t = DatabaseManager.getTransactionalMap(alias, c, xid);
-				mapCache.put(cjson+alias.getAlias(), t);
-				return t;
+				mapCache.put(cjson+xid+alias.getAlias(), t);
 			}
 			if(!DatabaseManager.isSessionAssociated(xid, t))
 				DatabaseManager.associateSession(xid, t);
@@ -431,7 +430,7 @@ public final class RelatrixKVJsonTransaction {
 	
 	public static TransactionalMap getMap(Class<?> json, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = json.getName();
-		TransactionalMap t = mapCache.get(cjson);
+		TransactionalMap t = mapCache.get(cjson+xid);
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -450,7 +449,7 @@ public final class RelatrixKVJsonTransaction {
 				t = DatabaseManager.getOptimisticTransactionalMap(c, xid);
 			else
 				t = DatabaseManager.getTransactionalMap(c, xid);
-			mapCache.put(cjson, t);
+			mapCache.put(cjson+xid, t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);	
@@ -459,7 +458,7 @@ public final class RelatrixKVJsonTransaction {
 
 	public static TransactionalMap getMap(Alias alias, Class<?> json, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = json.getName();
-		TransactionalMap t = mapCache.get(cjson+alias.getAlias());
+		TransactionalMap t = mapCache.get(cjson+xid+alias.getAlias());
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -478,7 +477,7 @@ public final class RelatrixKVJsonTransaction {
 				t = DatabaseManager.getOptimisticTransactionalMap(alias, c, xid);
 			else
 				t = DatabaseManager.getTransactionalMap(alias, c, xid);
-			mapCache.put(cjson+alias.getAlias(), t);
+			mapCache.put(cjson+xid+alias.getAlias(), t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);
@@ -733,6 +732,12 @@ public final class RelatrixKVJsonTransaction {
 	@ServerMethod
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		DatabaseManager.removeAlias(alias);
+		Enumeration<String> c = mapCache.keys();
+		while(c.hasMoreElements()) {
+			String cs = c.nextElement();
+			if(cs.contains(alias.getAlias()))
+				mapCache.remove(cs);
+		}
 	}
 	
 	/**
@@ -783,6 +788,12 @@ public final class RelatrixKVJsonTransaction {
 	@ServerMethod
 	public static void endTransaction(TransactionId xid) throws IOException {
 		DatabaseManager.endTransaction(xid);
+		Enumeration<String> c = mapCache.keys();
+		while(c.hasMoreElements()) {
+			String cs = c.nextElement();
+			if(cs.contains(xid.getTransactionId()))
+				mapCache.remove(cs);
+		}
 	}	
 	
 	@ServerMethod

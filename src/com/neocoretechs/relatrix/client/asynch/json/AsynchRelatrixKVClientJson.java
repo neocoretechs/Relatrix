@@ -73,12 +73,12 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	public AsynchRelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		classLoader = new HandlerClassLoader();
-		classLoader.connectToRemoteJsonRepository(this);
-		Thread.currentThread().setContextClassLoader(classLoader);
+		this.workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
+		this.classLoader = new HandlerClassLoader();
+		this.classLoader.connectToRemoteJsonRepository(this);
+		Thread.currentThread().setContextClassLoader(this.classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		workerHandler = new ConnectionHandler(workerSocket, classLoader);
+		this.workerHandler = new ConnectionHandler(workerSocket, this.classLoader);
 		if(DEBUG)
 			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -86,11 +86,11 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	public AsynchRelatrixKVClientJson(String remoteNode, int remotePort, HandlerClassLoader bootLoader)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		classLoader = bootLoader;
-		Thread.currentThread().setContextClassLoader(classLoader);
+		this.workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
+		this.classLoader = bootLoader;
+		Thread.currentThread().setContextClassLoader(this.classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		workerHandler = new ConnectionHandler(workerSocket, classLoader);
+		this.workerHandler = new ConnectionHandler(workerSocket, this.classLoader);
 		if(DEBUG)
 			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -114,11 +114,12 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 		return this.iteratorClient;
 	}
 	
-	public void createClass(JSONObject jo) {
+	public Class<?> createClass(JSONObject jo) {
 		String className = Converter.getMorphicClassname(jo);
        	byte[] ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   
-    	classLoader.defineAClass(className, ctype);
-		classLoader.setBytesInRepository(className, ctype);
+    	Class<?> c = getClassLoader().defineAClass(className, ctype);
+		getClassLoader().setBytesInRepository(className, ctype);
+		return c;
 	}
 	/**
 	* Set up the socket 
@@ -213,6 +214,13 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 		return remotePort;
 	}
 
+	public HandlerClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public void setClassLoader(HandlerClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
 	@Override
 	public Object remove(Alias arg1,Object arg2) {
@@ -284,6 +292,5 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 		System.out.println("Return from future:"+cf.get()+" took:"+(System.nanoTime()-tim)+"ns.");
 		rc.close();
 	}
-
 
 }

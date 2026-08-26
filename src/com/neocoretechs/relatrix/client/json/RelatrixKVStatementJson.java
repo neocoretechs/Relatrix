@@ -8,35 +8,25 @@ import java.net.InetSocketAddress;
 
 import java.util.Iterator;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.AbstractRelation;
-
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.rocksack.session.BufferedMap;
-import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.rocksack.stream.SackStream;
 
 import com.neocoretechs.relatrix.Relation;
-
-import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.TransportMorphismInterface;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.AbstractRelation;
 
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
-import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.client.json.util.Converter;
 
-import com.neocoretechs.relatrix.iterator.IteratorWrapper;
-
-import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
+
+import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
@@ -102,43 +92,47 @@ public class RelatrixKVStatementJson extends RelatrixKVStatement implements Rela
 			// preserve the underlying iterator, sending back the corresponding remote iterator.
 			// The client, being engaged in a steam operation, will create the local RemoteStream with returned
 			// remote iterator
-			if( result instanceof Stream) {
-				result = new IteratorWrapper(((SackStream)result).iterator());
-			} else {
-				if( result instanceof Iterator ) {
-					result = new IteratorWrapper((Iterator<?>) result);
-				}
+			if( result instanceof BaseIteratorAccessInterface) {
+				result = ((BaseIteratorAccessInterface)result).getBaseIterator();
 			}
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			// put it in the array and send our intermediary back
-			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
-				if( DEBUG ) {
-					System.out.printf("%s setting kev/value object return for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
-				}
-				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
-				signalCompletion(getObjectReturn());
-				return;
-			}
 			RemoteIteratorClient ric = null;
-			if(result.getClass() == IteratorWrapper.class) {
-				if( DEBUG ) {
-					System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+			for(int ic = 0; ic < RelatrixKVServerJson.iteratorServerClasses.length; ic++) {
+				if(result.getClass() == RelatrixKVServerJson.iteratorServerClasses[ic]) {	
+					ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic], RelatrixKVServerJson.port);
 				}
-				for(int ic = 0; ic < RelatrixKVServerJson.iteratorServerClasses.length; ic++) {
-					if(result.getClass() == RelatrixKVServerJson.iteratorServerClasses[ic]) {	
-						ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic], RelatrixKVServerJson.port);
-					}
-				}
-			} else
+			}
+			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+			// Link the object instance to session for later method invocation
+			if( DEBUG ) {
+				System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+			}
 			// Link the object instance to session for later method invocation
 			ric.setIteratorId(UUID.randomUUID());
 			RelatrixKVServerJson.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
+			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
+				result = new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue());
+				if( DEBUG ) {
+					System.out.printf("%s setting kev/value object return for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+				}
+			} else {
+				if(result instanceof AbstractRelation) {
+					Relation.resolve((Relation) result);
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
+						Relation rel = (Relation) ((Result)result).get();
+						Relation.resolve(rel);
+						((Result)result).set(rel);
+					}
+				}
+			}
 			setObjectReturn(result);
 			signalCompletion(result);
 		}
