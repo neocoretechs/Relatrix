@@ -89,6 +89,9 @@ public abstract class Result implements TransportMorphismInterface, Comparable, 
 	public abstract void set(int res, Comparable elem);
 	public abstract void set(Comparable elem);
 	public abstract Comparable[] toArray();
+	public abstract Comparable<?> getDomain();
+	public abstract Comparable<?> getMap();	
+	public abstract Comparable<?> getRange();
 	public abstract int length();
 	public abstract void packForTransport();
 	public abstract void unpackFromTransport();

@@ -6,8 +6,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.json.JSONObject;
-
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
@@ -16,12 +14,9 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
-import com.neocoretechs.rocksack.KeyValue;
-import com.neocoretechs.rocksack.session.BufferedMap;
-import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
  * The IndexInstanceTable is actually a combination of 2 Json K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
@@ -225,8 +220,14 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 			System.out.printf("%s.putAlias Alias:%s Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId,index.toString(), instance.getClass().getName(), instance);
 		storeParallel(alias, transactionId, index, instance);
 	}
-
-	
+	/**
+	 * Store the index/instance instance/index in parallel for given alias and transaction
+	 * @param alias
+	 * @param transactionId
+	 * @param index
+	 * @param instance
+	 * @throws IOException
+	 */
 	public static void storeParallel(Alias alias, TransactionId transactionId, DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -250,21 +251,8 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				@Override
 				public void run() {
 					try {
-						if(semaphore.get() == 0) {
-							Comparable<?> jkey;
-							if(instance instanceof JSONObject) {
-								JSONObject jsonod = (JSONObject)instance;
-								TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(alias, jsonod, transactionId);
-								jkey = RelatrixKVJsonTransaction.getObject(ttm);
-							} else {
-								if(instance instanceof Comparable<?>) {
-									jkey = (Comparable<?>) instance;
-								} else {
-									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-								}
-							}
-							RelatrixKVJsonTransaction.store(alias, transactionId, jkey, index);
-						}
+						if(semaphore.get() == 0)
+							RelatrixKVJsonTransaction.store(alias, transactionId, instance, index);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -277,7 +265,13 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
-	
+	/**
+	 * Store the index/instance instance/index in parallel for given transaction
+	 * @param transactionId
+	 * @param index
+	 * @param instance
+	 * @throws IOException
+	 */
 	public static void storeParallel(TransactionId transactionId, DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -301,21 +295,8 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				@Override
 				public void run() {
 					try {
-						if(semaphore.get() == 0) {
-							Comparable<?> jkey;
-							if(instance instanceof JSONObject) {
-								JSONObject jsonod = (JSONObject)instance;
-								TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(jsonod, transactionId);
-								jkey = RelatrixKVJsonTransaction.getObject(ttm);
-							} else {
-								if(instance instanceof Comparable<?>) {
-									jkey = (Comparable<?>) instance;
-								} else {
-									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-								}
-							}
-							RelatrixKVJsonTransaction.store(transactionId, jkey, index);
-						}
+						if(semaphore.get() == 0)
+							RelatrixKVJsonTransaction.store(transactionId, instance, index);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -328,7 +309,12 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
-	
+	/**
+	 * Store the index/instance instance/index in parallel
+	 * @param index
+	 * @param instance
+	 * @throws IOException
+	 */
 	public static void storeParallel(DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -368,7 +354,13 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
-	
+	/**
+	 * Store the index/instance instance/index in parallel for given alias
+	 * @param alias
+	 * @param index
+	 * @param instance
+	 * @throws IOException
+	 */
 	public static void storeParallel(Alias alias, DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -419,8 +411,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	public Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s get for key:%s%n", this.getClass().getName(), index);
-		BufferedMap bm = RelatrixKVJson.getMap(DBKey.class);
-		Object o =  bm.get(index);
+		Object o = RelatrixKVJson.get(index);
 		if(o == null) {
 			if(DEBUG)
 				System.out.printf("%s get for DBKey:%s returning null for BufferedMap get%n", this.getClass().getName(), index);
@@ -428,7 +419,6 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 		}
 		if(DEBUG)
 			System.out.printf("%s get for DBKey:%s returning KeyValue:%s%n", this.getClass().getName(), index, o);
-		o = ((KeyValue)o).getmValue();
 		if(o instanceof PrimaryKeySet) {
 			if(DEBUG)
 				System.out.printf("%s get for DBKey:%s Setting primary key identity, returning PrimaryKeySet %s for getmValue%n", this.getClass().getName(), index, o);
@@ -438,18 +428,20 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 			System.out.printf("%s get for DBKey:%s returning:%s%n", this.getClass().getName(), index, o);
 		return o;
 	}
-
+	/**
+	 * Get the instance contained in the passed DBKey for alias. 
+	 * @param alias the alias for db
+	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
+	 * @return The instance for the index
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	@Override
 	public Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s get for Alias:%s index:%s%n", this.getClass().getName(), alias, index);
-		BufferedMap bm = RelatrixKVJson.getMap(alias, DBKey.class);
-		Object o =  bm.get(index);
-		if(DEBUG)
-			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
-		if(o == null)
-			return null;
-		o = ((KeyValue)o).getmValue();
+		Object o = RelatrixKVJson.get(alias, index);
 		if(o instanceof PrimaryKeySet) {
 			((PrimaryKeySet)o).setIdentity(index);
 			((PrimaryKeySet)o).setAlias(alias);
@@ -460,33 +452,38 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 * Get the instance contained in the passed DBKey using a transactional context. 
 	 * @param transactionId the transaction
 	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
-	 * @return
+	 * @return The instance for the index
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		TransactionalMap tm = RelatrixKVJsonTransaction.getMap(DBKey.class, transactionId);
-		Object o =  tm.get(transactionId, index);
+		Object o = RelatrixKVJsonTransaction.get(transactionId, index);
 		if(o == null)
 			return null;
-		o = ((KeyValue)o).getmValue();
 		if(o instanceof PrimaryKeySet) {
 			((PrimaryKeySet)o).setIdentity(index);
 			((PrimaryKeySet)o).setTransactionId(transactionId);
 		}
 		return o;
 	}
-
+	/**
+	 * Get the instance contained in the passed DBKey using a transactional context for the alias
+	 * @param alias the db alias
+	 * @param transactionId the transaction
+	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
+	 * @return The instance for the alias index transaction
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	@Override
 	public Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		TransactionalMap tm = RelatrixKVJsonTransaction.getMap(alias, DBKey.class, transactionId);
-		Object o =  tm.get(transactionId, index);
+		Object o = RelatrixKVJsonTransaction.get(alias, transactionId, index);
 		if(o == null)
 			return null;
-		o = ((KeyValue)o).getmValue();
 		if(o instanceof PrimaryKeySet) {
 			((PrimaryKeySet)o).setIdentity(index);
 			((PrimaryKeySet)o).setAlias(alias);
@@ -545,19 +542,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		Comparable<?> jkey;
-		if(instance instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)instance;
-			TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(jsonod, transactionId);
-			jkey = RelatrixKVJsonTransaction.getObject(ttm);
-		} else {
-			if(instance instanceof Comparable<?>) {
-				jkey = (Comparable<?>) instance;
-			} else {
-				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-			}
-		}
-		return (DBKey) RelatrixKVJsonTransaction.get(transactionId, jkey);
+		return (DBKey) RelatrixKVJsonTransaction.get(transactionId, instance);
 	}
 
 	/**
@@ -573,19 +558,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		Comparable<?> jkey;
-		if(instance instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)instance;
-			TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(alias, jsonod, transactionId);
-			jkey = RelatrixKVJsonTransaction.getObject(ttm);
-		} else {
-			if(instance instanceof Comparable<?>) {
-				jkey = (Comparable<?>) instance;
-			} else {
-				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-			}
-		}
-		return (DBKey) RelatrixKVJsonTransaction.get(alias, transactionId, jkey);
+		return (DBKey) RelatrixKVJsonTransaction.get(alias, transactionId, instance);
 	}
 
 	@Override

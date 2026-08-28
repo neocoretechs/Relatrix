@@ -116,6 +116,18 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 				this.one = elem;
 				break;
 		}
-	}     
+	}
+	
+	public Comparable<?> getDomain() {
+		return ((AbstractRelation)one).getDomain();
+	}
+	
+	public Comparable<?> getMap() {
+		return ((AbstractRelation)one).getMap();
+	}
+	
+	public Comparable<?> getRange() {
+		return ((AbstractRelation)one).getRange();
+	}
 
 }

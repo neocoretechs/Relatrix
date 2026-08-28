@@ -140,7 +140,7 @@ public final class Relatrix {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					RelatrixKV.classLoader.connectToLocalRepository(false); // transaction param
+					RelatrixKV.classLoader.connectToLocalRepository(false, false); // transaction param, nojson
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}

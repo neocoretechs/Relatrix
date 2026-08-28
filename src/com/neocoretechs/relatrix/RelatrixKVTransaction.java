@@ -57,7 +57,7 @@ public final class RelatrixKVTransaction {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					classLoader.connectToLocalRepository(true); // transaction
+					classLoader.connectToLocalRepository(true, false); // transaction true json false
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -170,9 +170,8 @@ public final class RelatrixKVTransaction {
 	 * @throws ClassNotFoundException
 	 */
 	@ServerMethod
-	public static TransactionId getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
-		TransactionId xid = new TransactionId(DatabaseManager.getTransactionId().getTransactionId());
-		return xid;
+	public static TransactionId getTransactionId() {
+		return DatabaseManager.getTransactionId();
 	}
 	/**
 	 * @param the lock timeout in milliseconds
@@ -182,9 +181,8 @@ public final class RelatrixKVTransaction {
 	 * @throws ClassNotFoundException
 	 */
 	@ServerMethod
-	public static TransactionId getTransactionId(long timeout) throws IllegalAccessException, IOException, ClassNotFoundException {
-		TransactionId xid =  new TransactionId(DatabaseManager.getTransactionId(timeout).getTransactionId());
-		return xid;
+	public static TransactionId getTransactionId(long timeout)  {
+		return DatabaseManager.getTransactionId(timeout);
 	}
 	/**
 	 * @param xid the transaction id

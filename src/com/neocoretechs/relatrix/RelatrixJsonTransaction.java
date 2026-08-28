@@ -145,7 +145,7 @@ public final class RelatrixJsonTransaction {
 					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
 						throw new RuntimeException("tablespace property undefined or root path does not exist");
 					DatabaseManager.setTableSpaceDir(tablespace);
-					RelatrixKVJsonTransaction.classLoader.connectToLocalRepository(true); // transaction param
+					RelatrixKVJsonTransaction.classLoader.connectToLocalRepository(true, true); // transaction param true, json true
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
