@@ -94,7 +94,7 @@ public class HandlerClassLoader extends ClassLoader {
 			Bytecodes bname = new Bytecodes(name);
 			ClassNameAndBytes cnab = new ClassNameAndBytes(name, payload);
 			try {
-				RelatrixKVJson.store(bname, cnab);
+				RelatrixKVJson.storekv(bname, cnab);
 			} catch (IllegalAccessException | DuplicateKeyException e) {
 				e.printStackTrace();
 				throw new IOException(e);
@@ -132,7 +132,7 @@ public class HandlerClassLoader extends ClassLoader {
 			Bytecodes bname = new Bytecodes(name);
 			ClassNameAndBytes cnab = new ClassNameAndBytes(name, payload);
 			try {
-				RelatrixKVJsonTransaction.store(xid, bname, cnab);
+				RelatrixKVJsonTransaction.storekv(xid, bname, cnab);
 				RelatrixKVJsonTransaction.commit(xid);
 			} catch (IllegalAccessException | DuplicateKeyException e) {
 				e.printStackTrace();
