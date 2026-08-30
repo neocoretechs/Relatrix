@@ -70,8 +70,8 @@ import com.neocoretechs.relatrix.client.json.RelatrixKVClientJsonTransaction;
  * @author Jonathan Groff (C) NeoCoreTechs 1999, 2000, 2020, 2026
  */
 public class HandlerClassLoader extends ClassLoader {
-	private static boolean DEBUG = true;
-	private static boolean DEBUGSETREPOSITORY = true;
+	private static boolean DEBUG = false;
+	private static boolean DEBUGSETREPOSITORY = false;
 	private static ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
 	private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
 	private boolean useEmbedded = false;
