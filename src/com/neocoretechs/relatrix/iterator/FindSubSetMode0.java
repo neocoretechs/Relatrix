@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -28,6 +29,7 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
  *
  */
 public class FindSubSetMode0 extends FindSetMode0 {
+	public static boolean DEBUG = false;
 	Object[] endarg;
 	int argCtr = 0;
 	public FindSubSetMode0(char dop, char mop, char rop, Object ... endarg) { 	
@@ -35,6 +37,8 @@ public class FindSubSetMode0 extends FindSetMode0 {
 		if(endarg.length < 3)
 			throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
 		this.endarg = endarg;
+		if(DEBUG)
+			System.out.printf("%s args=%s len=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length);
 	}
 
 	@Override
@@ -72,6 +76,8 @@ public class FindSubSetMode0 extends FindSetMode0 {
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
+			if(argCtr >= endarg.length)
+				throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -100,9 +106,13 @@ public class FindSubSetMode0 extends FindSetMode0 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
+				if(DEBUG)
+					System.out.printf("%s tdmr.getDomain() class args=%s len=%d argCtr=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length,argCtr);
 				xdmr.setDomain(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
 				ydmr.setDomain(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[argCtr++]));
 			} else {
+				if(DEBUG)
+					System.out.printf("%s tdmr.getDomain() not class args=%s len=%d argCtr=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length,argCtr);
 				xdmr.setDomain(alias,(Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
 				ydmr.setDomain(alias,(Comparable)endarg[argCtr++]);
 			}
@@ -110,11 +120,15 @@ public class FindSubSetMode0 extends FindSetMode0 {
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[argCtr] instanceof Class) {
+				if(DEBUG)
+					System.out.printf("%s tdmr.getMap() class args=%s len=%d argCtr=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length,argCtr);
 				xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 				ydmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[argCtr++]));
 			} else {
+				if(DEBUG)
+					System.out.printf("%s tdmr.getMap() not class args=%s len=%d argCtr=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length,argCtr);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 				xdmr.setMap(alias,(Comparable)endarg[argCtr++]);
@@ -125,12 +139,18 @@ public class FindSubSetMode0 extends FindSetMode0 {
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
+			if(argCtr >= endarg.length)
+				throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 			if(endarg[argCtr] instanceof Class) {
+				if(DEBUG)
+					System.out.printf("%s tdmr.getRange() class args=%s len=%d argCtr=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length,argCtr);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 				xdmr.setRange(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
 				ydmr.setRange(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[argCtr]));
 			} else {
+				if(DEBUG)
+					System.out.printf("%s tdmr.getRange() not class args=%s len=%d argCtr=%d%n",this.getClass().getName(),Arrays.toString(endarg),endarg.length,argCtr);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 				xdmr.setRange(alias,(Comparable)endarg[argCtr++]);

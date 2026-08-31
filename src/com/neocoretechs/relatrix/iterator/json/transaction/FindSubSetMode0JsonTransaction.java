@@ -68,6 +68,8 @@ public class FindSubSetMode0JsonTransaction extends FindSetMode0JsonTransaction 
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
+			if(argCtr >= endarg.length)
+				throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -121,6 +123,8 @@ public class FindSubSetMode0JsonTransaction extends FindSetMode0JsonTransaction 
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
+			if(argCtr >= endarg.length)
+				throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");

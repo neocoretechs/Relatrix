@@ -46,6 +46,8 @@ public class FindSubSetMode2 extends FindSetMode2 {
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getRange() == null) {
+			if(argCtr >= endarg.length)
+				throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -83,6 +85,8 @@ public class FindSubSetMode2 extends FindSetMode2 {
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getRange() == null) {
+			if(argCtr >= endarg.length)
+				throw new IllegalAccessException("Wrong number of arguments to findSubSet");
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
