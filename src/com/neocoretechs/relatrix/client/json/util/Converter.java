@@ -208,4 +208,17 @@ public class Converter {
 			throw new IOException(e);
 		}
 	}
+	/**
+	 * Generate a String representation of the JSONObject that is compatible with a morphic class.
+	 * @param payload The JSONObject payload
+	 * @return A String value of the payload with fields sorted and normalized
+	 * @throws IOException
+	 */
+	public static String normalizeJson(JSONObject payload ) throws IOException {
+		try {
+			return RelatrixTypeSynthesizer.decodeCborPayload(RelatrixTypeSynthesizer.encodeCborPayload(payload));
+		} catch (CborException e) {
+			throw new IOException(e);
+		}
+	}
 }
