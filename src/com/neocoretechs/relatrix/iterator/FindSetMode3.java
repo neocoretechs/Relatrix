@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 Legal permutations are:<br>
 * *,[object],[object] <br>
 * *,[TemplateClass],[TemplateClass] <br>
-* *,?,[TemplateClass],[TemplateClass] <br>
+* *,*,[TemplateClass],[TemplateClass] <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
