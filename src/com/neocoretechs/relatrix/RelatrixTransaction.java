@@ -1054,15 +1054,10 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(transactionId, pks);
 			dmr.setTransactionId(transactionId);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
-			drm.setTransactionId(transactionId);
 			MapDomainRange mdr = new MapDomainRange(dmr);
-			mdr.setTransactionId(transactionId);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
-			mrd.setTransactionId(transactionId);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
-			rdm.setTransactionId(transactionId);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			rmd.setTransactionId(transactionId);
 			Future<?>[] jobs = new Future[5];
 			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
@@ -1140,15 +1135,10 @@ public final class RelatrixTransaction {
 			dmr.setTransactionId(transactionId);
 			dmr.setAlias(alias);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
-			drm.setTransactionId(transactionId);
 			MapDomainRange mdr = new MapDomainRange(dmr);
-			mdr.setTransactionId(transactionId);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
-			mrd.setTransactionId(transactionId);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
-			rdm.setTransactionId(transactionId);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			rmd.setTransactionId(transactionId);
 			Future<?>[] jobs = new Future[5];
 			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override

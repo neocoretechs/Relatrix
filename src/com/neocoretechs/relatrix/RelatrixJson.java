@@ -232,25 +232,7 @@ public final class RelatrixJson {
 		RelatrixKVJson.removeAlias(alias);
 	}
 	
-	public static Comparable[] tupleResolver(Result res) {
-		if(res.get() instanceof Relation) {
-			Comparable[] ret = new Comparable[3];
-			ret[0] = RelatrixKVJson.getData(((Relation)res.get(0)).getDomain());
-			ret[1] = RelatrixKVJson.getData(((Relation)res.get(0)).getMap());
-			ret[2] = RelatrixKVJson.getData(((Relation)res.get(0)).getRange());
-			return ret;
-		}
-		switch(res.length()) {
-			case 1:
-				return new Comparable[] {RelatrixKVJson.getData(res.get(0))};
-			case 2:
-				return new Comparable[] {RelatrixKVJson.getData(res.get(0)),RelatrixKVJson.getData(res.get(1))};
-			case 3:
-				return new Comparable[] {RelatrixKVJson.getData(res.get(0)),RelatrixKVJson.getData(res.get(1)),RelatrixKVJson.getData(res.get(2))};
-			default:
-				throw new RuntimeException("An impossible event has occured, the universe will now end");
-		}
-	}
+
 	/**
 	 * Get a tuple for the triplet specified, translating JSONObjects to morphic classes if necessary
 	 * @param d domain
