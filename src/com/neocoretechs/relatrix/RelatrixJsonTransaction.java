@@ -1119,7 +1119,7 @@ public final class RelatrixJsonTransaction {
 			int index = -1;
 			DBKey item = primaryKey;
 			while(index < removed.size()) {
-				removeSearch(transactionId, item, removed);
+				removeSearch(transactionId, item, removed, null);
 				++index;
 				if( DEBUG || DEBUGREMOVE )
 					System.out.println("RemoveSearch index"+index+" size:"+removed.size());
@@ -1164,8 +1164,9 @@ public final class RelatrixJsonTransaction {
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
+			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true), null);
 			while(index < removed.size()) {
-				removeSearch(alias, transactionId, item, removed);
+				removeSearch(alias, transactionId, item, removed, null);
 				++index;
 				if(DEBUG || DEBUGREMOVE)
 					System.out.println("RemoveSearch index"+index+" size:"+removed.size());
@@ -1185,6 +1186,7 @@ public final class RelatrixJsonTransaction {
 	 * @param transactionId
 	 * @param c
 	 * @param deleted
+	 * @param ctx TODO
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1192,16 +1194,16 @@ public final class RelatrixJsonTransaction {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static void removeSearch(TransactionId transactionId, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+	private static void removeSearch(TransactionId transactionId, DBKey c, List<DBKey> deleted, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		Relation dmr = new Relation(true, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, transactionId, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, transactionId, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(transactionId, dmr, dmr_return, null); //findSet(transactionId, c,'*','*');
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(transactionId, mdr, mdr_return, null); //findSet(transactionId, '*',c,'*');
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(transactionId, rmd, rmd_return, null); //findSet(transactionId, '*','*',c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(transactionId, dmr, dmr_return, ctx); //findSet(transactionId, c,'*','*');
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(transactionId, mdr, mdr_return, ctx); //findSet(transactionId, '*',c,'*');
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(transactionId, rmd, rmd_return, ctx); //findSet(transactionId, '*','*',c);
 		sequentialSearch(itd, itm, itr, deleted);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RemoveSearch Exit:"+c+" deleted size="+deleted.size());
@@ -1212,6 +1214,7 @@ public final class RelatrixJsonTransaction {
 	 * @param transactionId
 	 * @param c
 	 * @param deleted
+	 * @param ctx TODO
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1219,16 +1222,16 @@ public final class RelatrixJsonTransaction {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static void removeSearch(Alias alias, TransactionId transactionId, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+	private static void removeSearch(Alias alias, TransactionId transactionId, DBKey c, List<DBKey> deleted, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		Relation dmr = new Relation(true, alias, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, transactionId, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, transactionId, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, transactionId, dmr, dmr_return, null); //findSet(alias, transactionId, c,'*','*');
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, transactionId, mdr, mdr_return, null); //findSet(alias, transactionId, '*',c,'*');
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, transactionId, rmd, rmd_return, null); //findSet(alias, transactionId, '*','*',c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, transactionId, dmr, dmr_return, ctx); //findSet(alias, transactionId, c,'*','*');
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, transactionId, mdr, mdr_return, ctx); //findSet(alias, transactionId, '*',c,'*');
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, transactionId, rmd, rmd_return, ctx); //findSet(alias, transactionId, '*','*',c);
 		sequentialSearch(itd, itm, itr, deleted);
 	}
 
@@ -1251,17 +1254,11 @@ public final class RelatrixJsonTransaction {
 			RelatrixKVJsonTransaction.remove(transactionId, dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), transactionId);
 			RelatrixKVJsonTransaction.remove(transactionId, pks);
-			dmr.setTransactionId(transactionId);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
-			drm.setTransactionId(transactionId);
 			MapDomainRange mdr = new MapDomainRange(dmr);
-			mdr.setTransactionId(transactionId);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
-			mrd.setTransactionId(transactionId);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
-			rdm.setTransactionId(transactionId);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			rmd.setTransactionId(transactionId);
 			Future<?>[] jobs = new Future[5];
 			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
@@ -1339,15 +1336,10 @@ public final class RelatrixJsonTransaction {
 			dmr.setTransactionId(transactionId);
 			dmr.setAlias(alias);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
-			drm.setTransactionId(transactionId);
 			MapDomainRange mdr = new MapDomainRange(dmr);
-			mdr.setTransactionId(transactionId);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
-			mrd.setTransactionId(transactionId);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
-			rdm.setTransactionId(transactionId);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			rmd.setTransactionId(transactionId);
 			Future<?>[] jobs = new Future[5];
 			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
@@ -1774,8 +1766,8 @@ public final class RelatrixJsonTransaction {
 			if(c instanceof Tuple) {
 				if(((Tuple)c).getRelation() != null) {
 					located.add(((Tuple)c).getRelation());
-					relatedTupleSearch(xid, ((Tuple)c).getRelation().getIdentity(), dbkeys);
-					keysToInstances(xid, dbkeys, located);
+					relatedTupleSearch(xid, ((Tuple)c).getRelation().getIdentity(), dbkeys, ctx);
+					keysToInstances(xid, dbkeys, located, ctx);
 					return located;
 				} else {
 					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
@@ -1788,8 +1780,8 @@ public final class RelatrixJsonTransaction {
 							((AbstractRelation)cx).setTransactionId(xid);
 							located.add((Comparable) cx);
 						}
-						relatedTupleSearch(xid, pk.getIdentity(), dbkeys);
-						keysToInstances(xid, dbkeys, located);
+						relatedTupleSearch(xid, pk.getIdentity(), dbkeys, ctx);
+						keysToInstances(xid, dbkeys, located, ctx);
 						return located;
 					}
 				}
@@ -1802,22 +1794,23 @@ public final class RelatrixJsonTransaction {
 			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
 		}
-		relatedSearch(xid, dbk, dbkeys);
+		relatedSearch(xid, dbk, dbkeys, ctx);
 		int index = 0;
 		while(index < dbkeys.size()) {
-			relatedSearch(xid, dbkeys.get(index), dbkeys);
+			relatedSearch(xid, dbkeys.get(index), dbkeys, ctx);
 			++index;
 		}
-		keysToInstances(xid, dbkeys, located);
+		keysToInstances(xid, dbkeys, located, ctx);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet exiting");
 		return located;
 	}
 	/**
 	 * Find the related elements
-	 * @param transactionId
 	 * @param c
 	 * @param dbkeys 
+	 * @param ctx TODO
+	 * @param transactionId
 	 * @param deleted
 	 * @throws IOException
 	 * @throws IllegalArgumentException
@@ -1826,29 +1819,29 @@ public final class RelatrixJsonTransaction {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static void relatedSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	private static void relatedSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, xid, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, xid, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return, null); //findSet(c,"*","*");
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(xid, mdr, mdr_return, null); //findSet("*",c,"*");
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(xid, rmd, rmd_return, null); //findSet("*","*",c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return, ctx); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(xid, mdr, mdr_return, ctx); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(xid, rmd, rmd_return, ctx); //findSet("*","*",c);
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 		Relatrix.sequentialMorphismSearch(itm, dbkeys);
 		Relatrix.sequentialMorphismSearch(itr, dbkeys);
 	}
 	
-	private static void relatedTupleSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	private static void relatedTupleSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		short dmr_return[] = new short[]{-1,0,2,2};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return, null); //findSet(c,"*","*");
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return, ctx); //findSet(c,"*","*");
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 	}
 	
-	private static void keysToInstances(TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
+	private static void keysToInstances(TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		// should have unique list of dbkeys
 		if(DEBUG) {
 			System.out.println("Keys to Instances Size:"+dbkeys.size());
@@ -1862,8 +1855,9 @@ public final class RelatrixJsonTransaction {
 			//AbstractRelation.resolve((Comparable) get(xid, dbks), located);
 			Object cx = get(xid, dbks);
 			if(cx instanceof AbstractRelation) {
-				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setTransactionId(xid);
+				((AbstractRelation)cx).setResolver(ctx.resolver());
+				((AbstractRelation)cx).setIdentity(dbks);
 				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
@@ -1891,8 +1885,8 @@ public final class RelatrixJsonTransaction {
 			if(c instanceof Tuple) {
 				if(((Tuple)c).getRelation() != null) {
 					located.add(((Tuple)c).getRelation());
-					relatedTupleSearch(alias, xid, ((Tuple)c).getRelation().getIdentity(), dbkeys);
-					keysToInstances(alias, xid, dbkeys, located);
+					relatedTupleSearch(alias, xid, ((Tuple)c).getRelation().getIdentity(), dbkeys, null);
+					keysToInstances(alias, xid, dbkeys, located, ctx);
 					return located;
 				} else {
 					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
@@ -1906,8 +1900,8 @@ public final class RelatrixJsonTransaction {
 							((AbstractRelation)cx).setTransactionId(xid);
 							located.add((Comparable) cx);
 						}
-						relatedTupleSearch(alias, xid, pk.getIdentity(), dbkeys);
-						keysToInstances(alias, xid, dbkeys, located);
+						relatedTupleSearch(alias, xid, pk.getIdentity(), dbkeys, null);
+						keysToInstances(alias, xid, dbkeys, located, ctx);
 						return located;
 					}
 				}
@@ -1920,23 +1914,24 @@ public final class RelatrixJsonTransaction {
 			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
 		}
-		relatedSearch(alias, xid, dbk, dbkeys);
+		relatedSearch(alias, xid, dbk, dbkeys, null);
 		int index = 0;
 		while(index < dbkeys.size()) {
-			relatedSearch(alias, xid, dbkeys.get(index), dbkeys);
+			relatedSearch(alias, xid, dbkeys.get(index), dbkeys, null);
 			++index;
 		}
 		// should have unique list of dbkeys
-		keysToInstances(alias, xid, dbkeys, located);
+		keysToInstances(alias, xid, dbkeys, located, ctx);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixJsonTransaction.findSet exiting");
 		return located;
 	}
 	/**
 	 * Find the related elements
-	 * @param transactionId
 	 * @param c
 	 * @param dbkeys 
+	 * @param ctx TODO
+	 * @param transactionId
 	 * @param deleted
 	 * @throws IOException
 	 * @throws IllegalArgumentException
@@ -1945,29 +1940,29 @@ public final class RelatrixJsonTransaction {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static void relatedSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	private static void relatedSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, alias, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, xid, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, xid, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return, null); //findSet(c,"*","*");
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, xid, mdr, mdr_return, null); //findSet("*",c,"*");
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, xid, rmd, rmd_return, null); //findSet("*","*",c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return, ctx); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, xid, mdr, mdr_return, ctx); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, xid, rmd, rmd_return, ctx); //findSet("*","*",c);
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 		Relatrix.sequentialMorphismSearch(itm, dbkeys);
 		Relatrix.sequentialMorphismSearch(itr, dbkeys);
 	}
 	
-	private static void relatedTupleSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	private static void relatedTupleSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, alias, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		short dmr_return[] = new short[]{-1,0,2,2};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return, null); //findSet(c,"*","*");
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return, ctx ); //findSet(c,"*","*");
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 	}
 	
-	private static void keysToInstances(Alias alias, TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
+	private static void keysToInstances(Alias alias, TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		// should have unique list of dbkeys
 		if(DEBUG) {
 			System.out.println("Keys to Instances Size:"+dbkeys.size());
@@ -1978,12 +1973,12 @@ public final class RelatrixJsonTransaction {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			//AbstractRelation.resolve((Comparable) get(alias, xid, dbks), located);
 			Object cx = get(alias, xid, dbks);
 			if(cx instanceof AbstractRelation) {
-				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
 				((AbstractRelation)cx).setTransactionId(xid);
+				((AbstractRelation)cx).setResolver(ctx.resolver());
+				((AbstractRelation)cx).setIdentity(dbks);
 				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
@@ -3774,7 +3769,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIteratorJsonTransaction(xid, clazz, null);
+		return new RelatrixKeysetIteratorJsonTransaction(xid, clazz, new ParallelExecutionContext(new IndexResolver(true),null));
 	}
 	
 	/**
@@ -3795,7 +3790,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIteratorJsonTransaction(xid, clazz, null);
+		return new RelatrixEntrysetIteratorJsonTransaction(xid, clazz, new ParallelExecutionContext(new IndexResolver(true),null));
 	}
 	
 	/**
@@ -3823,7 +3818,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixStream(new RelatrixEntrysetIteratorJsonTransaction(xid, clazz, null));
+		return new RelatrixStream(new RelatrixEntrysetIteratorJsonTransaction(xid, clazz, new ParallelExecutionContext(new IndexResolver(true),null)));
 	}
 	
 	/**

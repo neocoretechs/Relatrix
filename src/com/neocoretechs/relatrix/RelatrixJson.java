@@ -941,7 +941,7 @@ public final class RelatrixJson {
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
-			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
+			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true), null);
 			while(index < removed.size()) {
 				removeSearch(item, removed, ctx);
 				++index;
@@ -985,7 +985,7 @@ public final class RelatrixJson {
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
-			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
+			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true), null);
 			while(index < removed.size()) {
 				removeSearch(alias, item, removed, ctx);
 				++index;
@@ -1309,7 +1309,7 @@ public final class RelatrixJson {
 				if(((Tuple)c).getRelation() != null) {
 					located.add(((Tuple)c).getRelation());
 					relatedTupleSearch(((Tuple)c).getRelation().getIdentity(), dbkeys, ctx);
-					keysToInstances(dbkeys, located);
+					keysToInstances(dbkeys, located, ctx);
 					return located;
 				} else {
 					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
@@ -1322,7 +1322,7 @@ public final class RelatrixJson {
 							located.add((Comparable) cx);
 						}
 						relatedTupleSearch(pk.getIdentity(), dbkeys, ctx);
-						keysToInstances(dbkeys, located);
+						keysToInstances(dbkeys, located, ctx);
 						return located;
 					}
 				}
@@ -1341,7 +1341,7 @@ public final class RelatrixJson {
 			relatedSearch(dbkeys.get(index), dbkeys, ctx);
 			++index;
 		}
-		keysToInstances(dbkeys, located);
+		keysToInstances(dbkeys, located, ctx);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet exiting");
 		return located;
@@ -1382,7 +1382,7 @@ public final class RelatrixJson {
 		sequentialMorphismSearch(itd, dbkeys);
 	}
 	
-	private static void keysToInstances(List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
+	private static void keysToInstances(List<DBKey> dbkeys, List<Comparable> instances, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		// should have unique list of dbkeys
 		if(DEBUG) {
 			System.out.println("Keys to Instances Size:"+dbkeys.size());
@@ -1396,6 +1396,7 @@ public final class RelatrixJson {
 			//AbstractRelation.resolve((Comparable) get(dbks), located);
 			Object cx = get(dbks);
 			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setResolver(ctx.resolver());
 				((AbstractRelation)cx).setIdentity(dbks);
 				Relation.resolve((AbstractRelation) cx);
 			}
@@ -1425,7 +1426,7 @@ public final class RelatrixJson {
 				if(((Tuple)c).getRelation() != null) {
 					located.add(((Tuple)c).getRelation());
 					relatedTupleSearch(alias, ((Tuple)c).getRelation().getIdentity(), dbkeys, ctx);
-					keysToInstances(dbkeys, located);
+					keysToInstances(dbkeys, located, ctx);
 					return located;
 				} else {
 					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
@@ -1439,7 +1440,7 @@ public final class RelatrixJson {
 							located.add((Comparable) cx);
 						}
 						relatedTupleSearch(alias, pk.getIdentity(), dbkeys, ctx);
-						keysToInstances(alias, dbkeys, located);
+						keysToInstances(alias, dbkeys, located, ctx);
 						return located;
 					}
 				}
@@ -1459,7 +1460,7 @@ public final class RelatrixJson {
 			++index;
 		}
 		// should have unique list of dbkeys
-		keysToInstances(alias, dbkeys, located);
+		keysToInstances(alias, dbkeys, located, ctx);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet exiting");
 		return located;
@@ -1500,7 +1501,7 @@ public final class RelatrixJson {
 		sequentialMorphismSearch(itd, dbkeys);
 	}
 	
-	private static void keysToInstances(Alias alias, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
+	private static void keysToInstances(Alias alias, List<DBKey> dbkeys, List<Comparable> instances, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		// should have unique list of dbkeys
 		if(DEBUG) {
 			System.out.println("Keys to Instances Size:"+dbkeys.size());
@@ -1514,8 +1515,9 @@ public final class RelatrixJson {
 			//AbstractRelation.resolve((Comparable) get(dbks), located);
 			Object cx = get(alias, dbks);
 			if(cx instanceof AbstractRelation) {
-				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
+				((AbstractRelation)cx).setResolver(ctx.resolver());
+				((AbstractRelation)cx).setIdentity(dbks);
 				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
@@ -3416,22 +3418,22 @@ public final class RelatrixJson {
 	@ServerMethod
 	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIteratorJson(clazz, null);
+		return new RelatrixKeysetIteratorJson(clazz, new ParallelExecutionContext(new IndexResolver(true),null));
 	}
 	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIteratorJson(alias, clazz, null);
+		return new RelatrixKeysetIteratorJson(alias, clazz, new ParallelExecutionContext(new IndexResolver(true),null));
 	}
 	@ServerMethod
 	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIteratorJson(clazz, null);
+		return new RelatrixEntrysetIteratorJson(clazz, new ParallelExecutionContext(new IndexResolver(true),null));
 	}
 	@ServerMethod
 	public static Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIteratorJson(alias, clazz, null);
+		return new RelatrixEntrysetIteratorJson(alias, clazz, new ParallelExecutionContext(new IndexResolver(true),null));
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -3443,12 +3445,12 @@ public final class RelatrixJson {
 	@ServerMethod
 	public static Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixStreamJson(new RelatrixEntrysetIteratorJson(clazz, null));
+		return new RelatrixStreamJson(new RelatrixEntrysetIteratorJson(clazz, new ParallelExecutionContext(new IndexResolver(true),null)));
 	}
 	@ServerMethod
 	public static Stream<?> entrySetStream(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return new RelatrixStreamJson(new RelatrixEntrysetIteratorJson(alias,clazz, null));
+		return new RelatrixStreamJson(new RelatrixEntrysetIteratorJson(alias,clazz, new ParallelExecutionContext(new IndexResolver(true),null)));
 	}
 
 	/**
