@@ -10,6 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -23,11 +24,13 @@ public class RelatrixEntrysetIteratorJsonTransaction extends RelatrixEntrysetIte
 	private TransactionId xid = null;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
+     * @param ctx TODO
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetIteratorJsonTransaction(TransactionId xid, Class c) throws IOException {
+    public RelatrixEntrysetIteratorJsonTransaction(TransactionId xid, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJsonTransaction.entrySet(xid, c);
 		} catch (IllegalAccessException e) {
@@ -36,8 +39,9 @@ public class RelatrixEntrysetIteratorJsonTransaction extends RelatrixEntrysetIte
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 			}
     	if( DEBUG )
 			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
@@ -55,9 +59,10 @@ public class RelatrixEntrysetIteratorJsonTransaction extends RelatrixEntrysetIte
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 			}
     	if( DEBUG )
 			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
@@ -81,9 +86,10 @@ public class RelatrixEntrysetIteratorJsonTransaction extends RelatrixEntrysetIte
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
-					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setTransactionId(xid);
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setResolver(indexResolver);
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 				}
 			} else {
 				nextit = null;

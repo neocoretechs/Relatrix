@@ -51,7 +51,7 @@ public class FindSubSetMode6JsonTransaction extends FindSetMode6JsonTransaction 
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixSubsetIteratorJsonTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJsonTransaction(xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -78,6 +78,6 @@ public class FindSubSetMode6JsonTransaction extends FindSetMode6JsonTransaction 
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixSubsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

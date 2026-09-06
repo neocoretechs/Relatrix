@@ -804,8 +804,9 @@ public final class Relatrix {
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
+			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
 			while(index < removed.size()) {
-				removeSearch(alias, item, removed);
+				removeSearch(alias, item, removed, ctx);
 				++index;
 				if(index < removed.size())
 					item = removed.get(index);
@@ -848,6 +849,7 @@ public final class Relatrix {
 	 * @param alias
 	 * @param c
 	 * @param deleted
+	 * @param ctx TODO
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -855,14 +857,13 @@ public final class Relatrix {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static void removeSearch(Alias alias, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+	private static void removeSearch(Alias alias, DBKey c, List<DBKey> deleted, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		Relation dmr = new Relation(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
 		Iterator<?> itd = new RelatrixIterator(alias, dmr, dmr_return, ctx); //findSet(alias, transactionId, c,"*","*");
 		Iterator<?> itm = new RelatrixIterator(alias, mdr, mdr_return, ctx); //findSet(alias, transactionId, "*",c,"*");
 		Iterator<?> itr = new RelatrixIterator(alias, rmd, rmd_return, ctx); //findSet(alias, transactionId, "*","*",c);

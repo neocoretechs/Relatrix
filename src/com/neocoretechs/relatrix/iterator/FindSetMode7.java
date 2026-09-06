@@ -35,6 +35,7 @@ public class FindSetMode7 extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new Relation((Comparable)darg, (Comparable)marg, (Comparable)rarg);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(dmr, ctx);
 	}
 	@Override
@@ -48,6 +49,7 @@ public class FindSetMode7 extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new Relation(alias, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	@Override

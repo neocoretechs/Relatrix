@@ -44,7 +44,8 @@ public class FindSetMode3Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new MapRangeDomain(true, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(dmr, null);
+		dmr.setResolver(ctx.resolver());
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
@@ -54,7 +55,7 @@ public class FindSetMode3Json extends IteratorFactory {
 	 * @throws IOException
 	 */
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorJson( tdmr, dmr_return);
+	    return new RelatrixIteratorJson( tdmr, dmr_return, ctx);
 	}
 	
 	   /**
@@ -63,6 +64,7 @@ public class FindSetMode3Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new MapRangeDomain(true, alias, null, (Comparable)marg, (Comparable)rarg);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	/**
@@ -73,6 +75,6 @@ public class FindSetMode3Json extends IteratorFactory {
 	 * @throws IOException
 	 */
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorJson(alias, tdmr, dmr_return);
+	    return new RelatrixIteratorJson(alias, tdmr, dmr_return, ctx);
 	}
 }

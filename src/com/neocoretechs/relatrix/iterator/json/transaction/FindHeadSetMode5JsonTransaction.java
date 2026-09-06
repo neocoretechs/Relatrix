@@ -39,7 +39,7 @@ public class FindHeadSetMode5JsonTransaction extends FindSetMode5JsonTransaction
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIteratorJsonTransaction(xid, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorJsonTransaction(xid, tdmr, xdmr, dmr_return, ctx);
 	}
 	
 	@Override
@@ -56,6 +56,6 @@ public class FindHeadSetMode5JsonTransaction extends FindSetMode5JsonTransaction
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, dmr_return, ctx);
 	}
 }

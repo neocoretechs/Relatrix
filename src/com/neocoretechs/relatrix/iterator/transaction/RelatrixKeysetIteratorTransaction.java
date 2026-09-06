@@ -40,9 +40,9 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
     	if( DEBUG )
 			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
@@ -68,10 +68,10 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 			}
     	if( DEBUG )
 			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
@@ -95,10 +95,10 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
-					((AbstractRelation)((Map.Entry)nextit).getKey()).setResolver(indexResolver);
-					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setTransactionId(xid);
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setResolver(indexResolver);
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 				}
 			} else {
 				nextit = null;

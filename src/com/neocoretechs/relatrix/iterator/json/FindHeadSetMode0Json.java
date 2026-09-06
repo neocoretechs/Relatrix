@@ -67,7 +67,7 @@ public class FindHeadSetMode0Json extends FindSetMode0Json {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIteratorJson(tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorJson(tdmr, xdmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -100,6 +100,6 @@ public class FindHeadSetMode0Json extends FindSetMode0Json {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIteratorJson(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorJson(alias, tdmr, xdmr, dmr_return, ctx);
 	}
 }

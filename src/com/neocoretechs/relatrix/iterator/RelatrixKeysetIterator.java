@@ -82,14 +82,6 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
     	}
     }
     
-    public RelatrixKeysetIterator(Comparable c, ParallelExecutionContext ctx) throws IOException {
-    	this(c.getClass(), ctx);
-    }
-    
-    public RelatrixKeysetIterator(Alias alias, Comparable c, ParallelExecutionContext ctx) throws IOException {
-    	this(alias, c.getClass(), ctx);
-    }
-    
 	@Override
 	@ServerMethod
 	public boolean hasNext() {

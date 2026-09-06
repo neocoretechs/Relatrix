@@ -28,7 +28,7 @@ public class FindTailSetMode7Json extends FindSetMode7Json {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-	    return new RelatrixTailsetIteratorJson(tdmr, xdmr, dmr_return);
+	    return new RelatrixTailsetIteratorJson(tdmr, xdmr, dmr_return, ctx);
 	}
 	
 	@Override
@@ -37,6 +37,6 @@ public class FindTailSetMode7Json extends FindSetMode7Json {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixTailsetIteratorJson(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIteratorJson(alias, tdmr, xdmr, dmr_return, ctx);
 	}
 }

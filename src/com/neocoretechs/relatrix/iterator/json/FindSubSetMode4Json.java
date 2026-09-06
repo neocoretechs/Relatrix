@@ -66,7 +66,7 @@ public class FindSubSetMode4Json extends FindSetMode4Json {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixSubsetIteratorJson(tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJson(tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -111,6 +111,6 @@ public class FindSubSetMode4Json extends FindSetMode4Json {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixSubsetIteratorJson(alias, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJson(alias, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

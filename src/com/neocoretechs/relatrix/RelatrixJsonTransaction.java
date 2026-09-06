@@ -1199,9 +1199,9 @@ public final class RelatrixJsonTransaction {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(transactionId, dmr, dmr_return); //findSet(transactionId, c,'*','*');
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(transactionId, mdr, mdr_return); //findSet(transactionId, '*',c,'*');
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(transactionId, rmd, rmd_return); //findSet(transactionId, '*','*',c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(transactionId, dmr, dmr_return, null); //findSet(transactionId, c,'*','*');
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(transactionId, mdr, mdr_return, null); //findSet(transactionId, '*',c,'*');
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(transactionId, rmd, rmd_return, null); //findSet(transactionId, '*','*',c);
 		sequentialSearch(itd, itm, itr, deleted);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RemoveSearch Exit:"+c+" deleted size="+deleted.size());
@@ -1226,9 +1226,9 @@ public final class RelatrixJsonTransaction {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, transactionId, dmr, dmr_return); //findSet(alias, transactionId, c,'*','*');
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, transactionId, mdr, mdr_return); //findSet(alias, transactionId, '*',c,'*');
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, transactionId, rmd, rmd_return); //findSet(alias, transactionId, '*','*',c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, transactionId, dmr, dmr_return, null); //findSet(alias, transactionId, c,'*','*');
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, transactionId, mdr, mdr_return, null); //findSet(alias, transactionId, '*',c,'*');
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, transactionId, rmd, rmd_return, null); //findSet(alias, transactionId, '*','*',c);
 		sequentialSearch(itd, itm, itr, deleted);
 	}
 
@@ -1833,9 +1833,9 @@ public final class RelatrixJsonTransaction {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return); //findSet(c,"*","*");
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(xid, mdr, mdr_return); //findSet("*",c,"*");
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(xid, rmd, rmd_return); //findSet("*","*",c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return, null); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(xid, mdr, mdr_return, null); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(xid, rmd, rmd_return, null); //findSet("*","*",c);
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 		Relatrix.sequentialMorphismSearch(itm, dbkeys);
 		Relatrix.sequentialMorphismSearch(itr, dbkeys);
@@ -1844,7 +1844,7 @@ public final class RelatrixJsonTransaction {
 	private static void relatedTupleSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		short dmr_return[] = new short[]{-1,0,2,2};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return); //findSet(c,"*","*");
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(xid, dmr, dmr_return, null); //findSet(c,"*","*");
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 	}
 	
@@ -1952,9 +1952,9 @@ public final class RelatrixJsonTransaction {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return); //findSet(c,"*","*");
-		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, xid, mdr, mdr_return); //findSet("*",c,"*");
-		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, xid, rmd, rmd_return); //findSet("*","*",c);
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return, null); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorJsonTransaction(alias, xid, mdr, mdr_return, null); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorJsonTransaction(alias, xid, rmd, rmd_return, null); //findSet("*","*",c);
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 		Relatrix.sequentialMorphismSearch(itm, dbkeys);
 		Relatrix.sequentialMorphismSearch(itr, dbkeys);
@@ -1963,7 +1963,7 @@ public final class RelatrixJsonTransaction {
 	private static void relatedTupleSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, alias, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		short dmr_return[] = new short[]{-1,0,2,2};
-		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return); //findSet(c,"*","*");
+		Iterator<?> itd = new RelatrixIteratorJsonTransaction(alias, xid, dmr, dmr_return, null); //findSet(c,"*","*");
 		Relatrix.sequentialMorphismSearch(itd, dbkeys);
 	}
 	
@@ -3774,7 +3774,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIteratorJsonTransaction(xid, clazz);
+		return new RelatrixKeysetIteratorJsonTransaction(xid, clazz, null);
 	}
 	
 	/**
@@ -3795,7 +3795,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIteratorJsonTransaction(xid, clazz);
+		return new RelatrixEntrysetIteratorJsonTransaction(xid, clazz, null);
 	}
 	
 	/**
@@ -3823,7 +3823,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixStream(new RelatrixEntrysetIteratorJsonTransaction(xid, clazz));
+		return new RelatrixStream(new RelatrixEntrysetIteratorJsonTransaction(xid, clazz, null));
 	}
 	
 	/**

@@ -49,7 +49,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param templateo 
      * @param dmr_return
-     * @param ctx TODO
+     * @param ctx Context for IndexResolver
      * @throws IOException 
      */
     public RelatrixTailsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
@@ -172,8 +172,8 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
-				buffer.setResolver(indexResolver);
 				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -308,9 +308,9 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
-				buffer.setResolver(indexResolver);
-				buffer.setTransactionId(xid);
 				buffer.setAlias(alias);
+				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -356,8 +356,8 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 	    				nextit = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
+	   				nextit.setTransactionId(xid);
 	    			nextit.setResolver(indexResolver);
-    				nextit.setTransactionId(xid);
     				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);

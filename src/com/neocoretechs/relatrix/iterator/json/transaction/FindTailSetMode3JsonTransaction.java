@@ -45,7 +45,7 @@ public class FindTailSetMode3JsonTransaction extends FindSetMode3JsonTransaction
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-	    return new RelatrixTailsetIteratorJsonTransaction(xid, tdmr, xdmr, dmr_return);
+	    return new RelatrixTailsetIteratorJsonTransaction(xid, tdmr, xdmr, dmr_return, ctx);
 	}
     
     @Override
@@ -62,6 +62,6 @@ public class FindTailSetMode3JsonTransaction extends FindSetMode3JsonTransaction
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-	    return new RelatrixTailsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, dmr_return);
+	    return new RelatrixTailsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, dmr_return, ctx);
  	}
 }

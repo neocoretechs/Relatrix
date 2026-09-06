@@ -31,7 +31,7 @@ public class FindSubSetMode7Json extends FindSetMode7Json {
 			xdmr = (AbstractRelation) tdmr.clone();
 			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixSubsetIteratorJson(tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJson(tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -42,6 +42,6 @@ public class FindSubSetMode7Json extends FindSetMode7Json {
 			xdmr = (AbstractRelation) tdmr.clone();
 			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixSubsetIteratorJson(alias, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJson(alias, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

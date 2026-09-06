@@ -176,8 +176,8 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
-				buffer.setResolver(indexResolver);
 				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -321,9 +321,9 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
-				buffer.setResolver(indexResolver);
 				buffer.setAlias(alias);
 				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);

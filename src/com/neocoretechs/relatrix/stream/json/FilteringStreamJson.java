@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream.json;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.stream.FilterInterface;
 
 /**
@@ -11,10 +12,8 @@ import com.neocoretechs.relatrix.stream.FilterInterface;
  * @param <T>
  */
 public abstract class FilteringStreamJson<T> extends RelatrixStreamJson<T> implements FilterInterface {
-	private AbstractRelation template;
-	public FilteringStreamJson(AbstractRelation template, short[] dmr_return) throws IOException {
-		super(template, dmr_return);
-		this.template = template;
+	public FilteringStreamJson(AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
+		super(template, dmr_return, ctx);
 	}
 
 	@Override

@@ -15,9 +15,10 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.json.FindsetUtilJson;
 import com.neocoretechs.relatrix.iterator.json.RelatrixHeadsetIteratorJson;
-import com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson;
+
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**                                                                                                                                                                                                                                                                                                                                                                      
@@ -49,14 +50,16 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param templateo 
      * @param dmr_return
+     * @param ctx COntext for IndexResolver
      * @throws IOException 
      */
-    public RelatrixHeadsetIteratorJsonTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIteratorJsonTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -176,6 +179,7 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVJsonTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -189,13 +193,14 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
 			System.out.println("RelatrixHeadsetIteratorJsonTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
-    public RelatrixHeadsetIteratorJsonTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIteratorJsonTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
        	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -316,6 +321,7 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
 				buffer = (AbstractRelation) RelatrixKVJsonTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setAlias(alias);
 				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -362,6 +368,7 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setTransactionId(xid);
+    				nextit.setResolver(indexResolver);
     				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);

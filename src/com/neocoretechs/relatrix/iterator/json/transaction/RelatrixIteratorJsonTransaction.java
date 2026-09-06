@@ -15,6 +15,7 @@ import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -46,12 +47,14 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
 	 * @param xid the transaction id
 	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @param ctx TODO
 	 * @throws IOException
 	 */
-    public RelatrixIteratorJsonTransaction(TransactionId xid, AbstractRelation template, short[] dmr_return) throws IOException {
+    public RelatrixIteratorJsonTransaction(TransactionId xid, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
     	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.indexResolver = ctx.resolver();
     	if(DEBUG)
     		System.out.printf("%s ctor xid:%s template:%s dmr_return:%s%n",this.getClass().getName(),xid,template,Arrays.toString(dmr_return));
     	try {
@@ -63,6 +66,7 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
     		Map.Entry me = (Entry) iter.next();
 			buffer = (AbstractRelation) me.getKey();
 			buffer.setTransactionId(xid);
+			buffer.setResolver(indexResolver);
 			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
@@ -81,13 +85,15 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
 	 * @param xid the transaction id
 	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @param ctx Context for IndexResolver
 	 * @throws IOException
 	 */
-    public RelatrixIteratorJsonTransaction(Alias alias, TransactionId xid, AbstractRelation template, short[] dmr_return) throws IOException {
+    public RelatrixIteratorJsonTransaction(Alias alias, TransactionId xid, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
       	this.alias = alias;
     	this.xid = xid;
     	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJsonTransaction.findTailMapKV(alias, xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
@@ -98,6 +104,7 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
 			buffer = (AbstractRelation)me.getKey();
 			buffer.setTransactionId(xid);
 			buffer.setAlias(alias);
+			buffer.setResolver(indexResolver);
 			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
@@ -132,8 +139,9 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
 			if( iter.hasNext()) {
 				Map.Entry me = (Entry) iter.next();
 				nextit = (AbstractRelation)me.getKey();
-				nextit.setIdentity((DBKey) me.getValue());
 				nextit.setTransactionId(xid);
+				nextit.setResolver(indexResolver);
+				nextit.setIdentity((DBKey) me.getValue());
 				if(alias != null)
 					nextit.setAlias(alias);
 				if( !templateMatches(base, nextit, dmr_return) ) {

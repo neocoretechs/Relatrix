@@ -15,6 +15,8 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 import com.neocoretechs.rocksack.Alias;
@@ -51,6 +53,7 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     protected AbstractRelation nextit = null;
     protected AbstractRelation base;
     protected short dmr_return[] = new short[4];
+    protected IndexResolver indexResolver;
 
     protected boolean needsIter = true;
 	protected AbstractRelation template;
@@ -75,12 +78,14 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
+     * @param ctx Context for IndexResolver
      * @throws IOException
      */
-    public RelatrixSubsetIteratorJson(AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIteratorJson(AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
        	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
        	this.base = template;
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
@@ -191,6 +196,7 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     		try {
      			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVJson.get(dbkey); // primary DBKey for AbstractRelation
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -209,9 +215,10 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
+     * @param ctx Context for IndexResolver
      * @throws IOException
      */
-    public RelatrixSubsetIteratorJson(Alias alias, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIteratorJson(Alias alias, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
     	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, templatep, Arrays.toString(dmr_return));
@@ -316,6 +323,7 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
     			buffer = (AbstractRelation) RelatrixKVJson.get(alias, dbkey); // primary DBKey for AbstractRelation
+    			buffer.setResolver(indexResolver);
     			buffer.setIdentity(dbkey);
     			buffer.setAlias(alias);
     		} catch (IllegalAccessException | IOException e) {
@@ -358,6 +366,7 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
 	    				nextit = (AbstractRelation) RelatrixKVJson.get(alias, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
+	    			nextit.setResolver(indexResolver);
 	    			nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);

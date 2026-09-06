@@ -81,14 +81,6 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
     	}
     }
     
-    public RelatrixEntrysetIterator(Comparable c) throws IOException {
-    	this(c.getClass(), null);
-    }
-    
-    public RelatrixEntrysetIterator(Alias alias, Comparable c) throws IOException {
-    	this(alias, c.getClass(), null);
-    }
-    
 	@Override
 	@ServerMethod
 	public boolean hasNext() {

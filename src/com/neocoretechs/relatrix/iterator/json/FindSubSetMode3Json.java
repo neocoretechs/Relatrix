@@ -42,7 +42,7 @@ public class FindSubSetMode3Json extends FindSetMode3Json {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
-		return new RelatrixSubsetIteratorJson(tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJson(tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -63,6 +63,6 @@ public class FindSubSetMode3Json extends FindSetMode3Json {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
-		return new RelatrixSubsetIteratorJson(alias, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorJson(alias, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

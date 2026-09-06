@@ -9,6 +9,8 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -25,14 +27,16 @@ public class RelatrixKeysetIteratorJson implements Iterator<Comparable> {
     protected Comparable nextit = null;
     protected boolean needsIter = true;
     protected Alias alias = null;
+    protected IndexResolver indexResolver;
     
     public RelatrixKeysetIteratorJson() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param c the Class to retrieve
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixKeysetIteratorJson(Class c) throws IOException {
+    public RelatrixKeysetIteratorJson(Class c, ParallelExecutionContext ctx) throws IOException {
     	try {
 			iter = RelatrixKVJson.entrySet(c);
 		} catch (IllegalAccessException e) {
@@ -41,6 +45,7 @@ public class RelatrixKeysetIteratorJson implements Iterator<Comparable> {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 			}
     	if( DEBUG )
@@ -52,10 +57,12 @@ public class RelatrixKeysetIteratorJson implements Iterator<Comparable> {
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param alias the database alias
      * @param c The class we are retrieving
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixKeysetIteratorJson(Alias alias, Class c) throws IOException {
+    public RelatrixKeysetIteratorJson(Alias alias, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJson.entrySet(alias, c);
 		} catch (IllegalAccessException e) {
@@ -64,20 +71,13 @@ public class RelatrixKeysetIteratorJson implements Iterator<Comparable> {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
 			}
     	if( DEBUG )
     		System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
     	}
-    }
-    
-    public RelatrixKeysetIteratorJson(Comparable c) throws IOException {
-    	this(c.getClass());
-    }
-    
-    public RelatrixKeysetIteratorJson(Alias alias, Comparable c) throws IOException {
-    	this(alias, c.getClass());
     }
     
 	@Override
@@ -101,6 +101,7 @@ public class RelatrixKeysetIteratorJson implements Iterator<Comparable> {
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setResolver(indexResolver);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
 				}

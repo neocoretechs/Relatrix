@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.json.FindsetUtilJson;
@@ -48,14 +49,16 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param templateo 
      * @param dmr_return
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixTailsetIteratorJsonTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorJsonTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
        	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -168,6 +171,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVJsonTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setTransactionId(xid);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -181,13 +185,14 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
 			System.out.println("RelatrixTailsetIteratorJsonTransaction xid:"+xid+" "+super.toString());
     }
     
-    public RelatrixTailsetIteratorJsonTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorJsonTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
       	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -299,6 +304,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
 				buffer = (AbstractRelation) RelatrixKVJsonTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setTransactionId(xid);
 				buffer.setAlias(alias);
+				buffer.setResolver(indexResolver);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -345,6 +351,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setTransactionId(xid);
+    				nextit.setResolver(indexResolver);
     				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);

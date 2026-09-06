@@ -45,11 +45,12 @@ public class FindSetMode6Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new Relation(true, (Comparable)darg, (Comparable)marg, null);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx)throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorJson( tdmr, dmr_return);
+	    return new RelatrixIteratorJson( tdmr, dmr_return, ctx);
 	}
 	
     /**
@@ -58,10 +59,11 @@ public class FindSetMode6Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new Relation(true, alias, (Comparable)darg, (Comparable)marg, null);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx)throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorJson(alias, tdmr, dmr_return);
+	    return new RelatrixIteratorJson(alias, tdmr, dmr_return, ctx);
 	}
 }

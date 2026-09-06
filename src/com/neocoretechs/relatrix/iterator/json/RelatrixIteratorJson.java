@@ -15,6 +15,8 @@ import com.neocoretechs.relatrix.Result1;
 
 import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -40,6 +42,7 @@ public class RelatrixIteratorJson implements Iterator<Result> {
     protected AbstractRelation nextit = null;
     protected AbstractRelation base;
     protected short dmr_return[] = new short[4];
+    protected IndexResolver indexResolver;
     protected Alias alias = null;
 
     protected boolean needsIter = true;
@@ -49,11 +52,13 @@ public class RelatrixIteratorJson implements Iterator<Result> {
 	 * Pass the array we use to indicate which values to return and element 0 counter
 	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard,
+	 * @param ctx TODO
 	 * @throws IOException
 	 */
-    public RelatrixIteratorJson(AbstractRelation template, short[] dmr_return) throws IOException {
+    public RelatrixIteratorJson(AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJson.findTailMapKV(template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
@@ -62,6 +67,7 @@ public class RelatrixIteratorJson implements Iterator<Result> {
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
 			buffer = (AbstractRelation)me.getKey();
+			buffer.setResolver(indexResolver);
 			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
@@ -79,9 +85,10 @@ public class RelatrixIteratorJson implements Iterator<Result> {
 	 * @param alias
 	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @param ctx 
 	 * @throws IOException
 	 */
-	public RelatrixIteratorJson(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException {
+	public RelatrixIteratorJson(Alias alias, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
 	   	this.dmr_return = dmr_return;
     	this.base = template;
     	this.alias = alias;
@@ -93,6 +100,7 @@ public class RelatrixIteratorJson implements Iterator<Result> {
     	if( iter.hasNext() ) {
       		Map.Entry me = (Entry) iter.next();
 			buffer = (AbstractRelation)me.getKey();
+			buffer.setResolver(indexResolver);
 			buffer.setIdentity((DBKey)me.getValue());
 			buffer.setAlias(alias);
 			if( !templateMatches(base, buffer, dmr_return) ) {
@@ -129,6 +137,7 @@ public class RelatrixIteratorJson implements Iterator<Result> {
 			if( iter.hasNext()) {
 				Map.Entry me = (Entry) iter.next();
 				nextit = (AbstractRelation)me.getKey();
+				nextit.setResolver(indexResolver);
 				nextit.setIdentity((DBKey) me.getValue());
 				if(alias != null)
 					nextit.setAlias(alias);

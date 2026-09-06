@@ -44,6 +44,7 @@ public class FindSetMode3 extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new MapRangeDomain(true, null, (Comparable)marg, (Comparable)rarg);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(dmr, ctx);
 	}
 	/**
@@ -63,6 +64,7 @@ public class FindSetMode3 extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new MapRangeDomain(true, alias, null, (Comparable)marg, (Comparable)rarg);
+		dmr.setResolver(ctx.resolver());
 	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	/**

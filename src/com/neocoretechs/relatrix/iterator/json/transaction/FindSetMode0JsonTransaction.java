@@ -56,11 +56,11 @@ public class FindSetMode0JsonTransaction extends FindSetMode0Json {
  	
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorJsonTransaction(xid, tdmr, dmr_return);
+	    return new RelatrixIteratorJsonTransaction(xid, tdmr, dmr_return, ctx);
 	}
 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorJsonTransaction(alias, xid, tdmr, dmr_return);
+	    return new RelatrixIteratorJsonTransaction(alias, xid, tdmr, dmr_return, ctx);
 	}
 }

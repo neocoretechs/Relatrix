@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.relatrix.stream.StreamHelper;
 import com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson;
-
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -51,26 +51,20 @@ import com.neocoretechs.rocksack.Alias;
 public class RelatrixStreamJson<T> implements Stream<T>, BaseIteratorAccessInterface {
 	private static boolean DEBUG = false;
 	protected StreamHelper<T> stream;
-    protected AbstractRelation buffer = null;
-    protected AbstractRelation nextit = null;
-    protected AbstractRelation base;
-    protected short dmr_return[] = new short[4];
-
-    protected boolean needsIter = true;
+  
 
     public RelatrixStreamJson() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param template the {@link AbstractRelation} template
      * @param dmr_return the template {@link AbstractRelation} from which we extract the class to obtain a stream from {@link RelatrixKVJson}
+     * @param ctx Context containing IndexResolver
      * @throws IOException 
      */
-    public RelatrixStreamJson(AbstractRelation template, short[] dmr_return) throws IOException {
-    	this.dmr_return = dmr_return;
-    	this.base = template;
-    	stream = new StreamHelper<T>(new RelatrixIteratorJson(template, dmr_return));
+    public RelatrixStreamJson(AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
+    	stream = new StreamHelper<T>(new RelatrixIteratorJson(template, dmr_return, ctx));
     	if( DEBUG )
-			System.out.println("RelatrixStreamJson "+stream+" BASELINE:"+base);
+			System.out.println("RelatrixStreamJson "+stream);
     }
     
     public RelatrixStreamJson(Iterator<?> setIterator) throws IOException {
@@ -81,15 +75,14 @@ public class RelatrixStreamJson<T> implements Stream<T>, BaseIteratorAccessInter
      * @param alias database alias
      * @param template the {@link AbstractRelation} template
      * @param dmr_return the template {@link AbstractRelation} from which we extract the class to obtain a stream from {@link RelatrixKVJson}
+     * @param ctx TODO
      * @throws IOException 
      * @throws NoSuchElementException if alias does not exist
      */
-    public RelatrixStreamJson(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException, NoSuchElementException {
-    	this.dmr_return = dmr_return;
-    	this.base = template;
-    	stream = new StreamHelper<T>(new RelatrixIteratorJson(alias, template, dmr_return));
+    public RelatrixStreamJson(Alias alias, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException, NoSuchElementException {
+    	stream = new StreamHelper<T>(new RelatrixIteratorJson(alias, template, dmr_return, ctx));
     	if( DEBUG )
-			System.out.println("RelatrixStreamJson alias:"+alias+" stream:"+stream+" template:"+base);
+			System.out.println("RelatrixStreamJson alias:"+alias+" stream:"+stream+" template:");
     }
     
 	@Override

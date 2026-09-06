@@ -64,8 +64,8 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     		if( iter.hasNext() ) {
     			Map.Entry me = (Entry) iter.next();
     			buffer = (AbstractRelation)me.getKey();
+     			buffer.setTransactionId(xid);
      			buffer.setResolver(indexResolver);
-    			buffer.setTransactionId(xid);
     			buffer.setIdentity((DBKey) me.getValue());
     			if( !templateMatches(base, buffer, dmr_return) ) {
     				buffer = null;
@@ -103,9 +103,9 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
     		buffer = (AbstractRelation)me.getKey();
-    		buffer.setResolver(indexResolver);
+      		buffer.setAlias(alias);
     		buffer.setTransactionId(xid);
-    		buffer.setAlias(alias);
+    		buffer.setResolver(indexResolver);
     		buffer.setIdentity((DBKey) me.getValue());
     		if( !templateMatches(base, buffer, dmr_return) ) {
     			buffer = null;
@@ -138,9 +138,9 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     			if( iter.hasNext()) {
     				Map.Entry me = (Entry) iter.next();
     				nextit = (AbstractRelation)me.getKey();
+     				nextit.setTransactionId(xid);
     				nextit.setResolver(indexResolver);
     				nextit.setIdentity((DBKey) me.getValue());
-    				nextit.setTransactionId(xid);
     				if(alias != null)
     					nextit.setAlias(alias);
     				if( !templateMatches(base, nextit, dmr_return) ) {

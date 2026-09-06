@@ -26,7 +26,7 @@ public class FindHeadSetMode7Json extends FindSetMode7Json {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-	    return new RelatrixHeadsetIteratorJson(tdmr, xdmr, dmr_return);
+	    return new RelatrixHeadsetIteratorJson(tdmr, xdmr, dmr_return, ctx);
 	}
 	
 	@Override
@@ -35,6 +35,6 @@ public class FindHeadSetMode7Json extends FindSetMode7Json {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorJson(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorJson(alias, tdmr, xdmr, dmr_return, ctx);
 	}
 }
