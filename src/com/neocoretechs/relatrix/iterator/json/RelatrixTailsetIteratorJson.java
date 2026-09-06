@@ -225,7 +225,7 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
     	this.dmr_return = dmr_return;
     	this.indexResolver = ctx.resolver();
     	try {
-    		Stream<?> dstream = null;
+    		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVJson.get(alias,template.getDomain());
     			if(dk != null) {
@@ -233,7 +233,8 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}    		
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVJson.findTailMapKVStream(alias,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -253,6 +254,7 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVJson.get(alias,template.getMap());
     			if(mk != null) {

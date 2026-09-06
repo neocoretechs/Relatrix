@@ -197,6 +197,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
+    		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVJsonTransaction.get(alias,xid,template.getDomain());
     			if(dk != null) {
@@ -204,7 +205,8 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}    		
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVJsonTransaction.findTailMapKVStream(alias,xid,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -224,6 +226,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVJsonTransaction.get(alias,xid,template.getMap());
     			if(mk != null) {
@@ -231,7 +234,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     				mkeyLo = mk;
     				mkeyHi = mk;
     			}    		
-    		} else
+    		} else {
     			if(templateo.getMap() != null) {
     				/*RelatrixKVJsonTransaction.findTailMapKVStream(alias,xid,templateo.getMap()).forEach(e -> {
     					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -251,6 +254,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     					if (k.compareTo(mkeyHi) > 0) mkeyHi = k;
     				}
     			}
+    		}
     		if(template.getRange() != null) {
     			DBKey rk = (DBKey) RelatrixKVJsonTransaction.get(alias,xid,template.getRange());
     			if(rk != null) {

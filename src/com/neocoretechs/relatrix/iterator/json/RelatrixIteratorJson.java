@@ -92,6 +92,7 @@ public class RelatrixIteratorJson implements Iterator<Result> {
 	   	this.dmr_return = dmr_return;
     	this.base = template;
     	this.alias = alias;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJson.findTailMapKV(alias, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {

@@ -205,6 +205,7 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
+    		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVJsonTransaction.get(alias,xid,template.getDomain());
     			if(dk != null) {
@@ -212,7 +213,8 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVJsonTransaction.findHeadMapKVStream(alias,xid,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -235,6 +237,7 @@ public class RelatrixHeadsetIteratorJsonTransaction extends RelatrixHeadsetItera
     	    					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     	    				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVJsonTransaction.get(alias,xid,template.getMap());
     			if(mk != null) {

@@ -3784,7 +3784,7 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return new RelatrixKeysetIteratorJsonTransaction(alias, xid, clazz);
+		return new RelatrixKeysetIteratorJsonTransaction(alias, xid, clazz, null);
 	}
 	
 	@ServerMethod

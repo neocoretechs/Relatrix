@@ -224,10 +224,12 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     		System.out.printf("%s alias:%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, templatep, Arrays.toString(dmr_return));
     	this.base = template;
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
+    		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVJson.get(alias, template.getDomain());
     			if(dk != null) {
@@ -235,7 +237,8 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVJson.findSubMapKVStream(alias, templateo.getDomain(), templatep.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -255,6 +258,7 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVJson.get(alias, template.getMap());
     			if(mk != null) {

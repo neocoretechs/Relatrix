@@ -53,11 +53,13 @@ public class RelatrixKeysetIteratorJsonTransaction extends RelatrixKeysetIterato
      * @param alias The database alias
      * @param xid The transaction Id
      * @param c The class we are retrieving
+     * @param ctx TODO
      * @throws IOException for low level Db fail
      */
-    public RelatrixKeysetIteratorJsonTransaction(Alias alias, TransactionId xid, Class c) throws IOException {
+    public RelatrixKeysetIteratorJsonTransaction(Alias alias, TransactionId xid, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
     	this.xid = xid;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJsonTransaction.entrySet(alias, xid, c);
 		} catch (IllegalAccessException e) {

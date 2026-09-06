@@ -37,6 +37,7 @@ public class RelatrixKeysetIteratorJson implements Iterator<Comparable> {
      * @throws IOException 
      */
     public RelatrixKeysetIteratorJson(Class c, ParallelExecutionContext ctx) throws IOException {
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVJson.entrySet(c);
 		} catch (IllegalAccessException e) {
