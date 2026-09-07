@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.cbor.CborBuilder;
 import org.json.cbor.CborDecoder;
@@ -26,7 +27,6 @@ import org.json.cbor.model.DataItem;
 import org.json.reflect.HandlerClassLoader;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
-
 
 /**
  * Class to generate hashed class names from JSON field names to create ersatz 
@@ -58,6 +58,20 @@ public class RelatrixTypeSynthesizer {
 
     		// Return a clean, safe Java class name identifier
     		return classPrefix + "_" + structureHash;
+    	}
+    }
+    /**
+     * Extracts a user class name from the ClassName field
+     * @param node the JSONObject containing the ClassName field
+     * @return The value of the field, also populates tokens and elements
+     * @throws JSONException
+     */
+    public static String getUserClassName(JSONObject node) throws JSONException {
+    	synchronized(mutex) {
+    		structuralTokens.clear();
+    		elements.clear();
+    		extractStructuralTokens("", node, structuralTokens, elements);
+    		return node.getString("ClassName");
     	}
     }
     /**

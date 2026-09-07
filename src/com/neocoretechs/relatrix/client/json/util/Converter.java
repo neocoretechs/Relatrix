@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.json.cbor.CborException;
@@ -70,12 +71,21 @@ public class Converter {
     	return RelatrixTypeSynthesizer.generateMorphicClassName((JSONObject)jsono,RelatrixTypeSynthesizer.morphicClassPrefix);
 	}
 	/**
+	 * Generate a morphic class name from a JSONObject using {@link RelatrixTypeSynthesizer}
+	 * @param jsono the JSONObject
+	 * @return the morphic class name
+	 * @throws IOException
+	 */
+	public static String getUserClassName(JSONObject jsono) throws JSONException{
+		// calls extractStructuralTokens, populates fields with JSONObject
+    	return RelatrixTypeSynthesizer.getUserClassName(jsono);
+	}
+	/**
 	 * Get a morphic class from a JSONObject and class name
 	 * @param className the class name from getMorphicClassname
-	 * @param jsono the JSONObject that generated the class name
 	 * @return the morphic Class
 	 */
-	public static Class<?> getMorphicClass(String className, JSONObject jsono) {
+	public static Class<?> getMorphicClass(String className) {
 	 	byte[] ctype = null;
       	Class<?> c;
       	try {

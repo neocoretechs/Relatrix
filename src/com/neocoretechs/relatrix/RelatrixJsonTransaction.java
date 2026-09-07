@@ -212,25 +212,6 @@ public final class RelatrixJsonTransaction {
 		RelatrixKVJsonTransaction.removeAlias(alias);
 	}
 	
-	public static Comparable[] tupleResolver(Result res) {
-		if(res.get() instanceof Relation) {
-			Comparable[] ret = new Comparable[3];
-			ret[0] = RelatrixKVJsonTransaction.getData(((Relation)res.get(0)).getDomain());
-			ret[1] = RelatrixKVJsonTransaction.getData(((Relation)res.get(0)).getMap());
-			ret[2] = RelatrixKVJsonTransaction.getData(((Relation)res.get(0)).getRange());
-			return ret;
-		}
-		switch(res.length()) {
-			case 1:
-				return new Comparable[] {RelatrixKVJsonTransaction.getData(res.get(0))};
-			case 2:
-				return new Comparable[] {RelatrixKVJsonTransaction.getData(res.get(0)),RelatrixKVJsonTransaction.getData(res.get(1))};
-			case 3:
-				return new Comparable[] {RelatrixKVJsonTransaction.getData(res.get(0)),RelatrixKVJsonTransaction.getData(res.get(1)),RelatrixKVJsonTransaction.getData(res.get(2))};
-			default:
-				throw new RuntimeException("An impossible event has occured, the universe will now end");
-		}
-	}
 	/**
 	 * Get the tablespace path for this alias. Will return null if alias does not exist.
 	 * @param alias

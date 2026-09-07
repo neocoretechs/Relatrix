@@ -64,7 +64,7 @@ public class RelatrixKVStatementJson extends RelatrixKVStatement implements Rela
     		try {
     			if(paramArray[i] instanceof JSONObject) {
     				paramTypes[i] = Converter.getMorphicClassname((JSONObject) paramArray[i]);
-    				params[i] = Converter.getMorphicClass(paramTypes[i], (JSONObject) paramArray[i]);
+    				params[i] = Converter.getMorphicClass(paramTypes[i]);
     				paramArray[i] = Converter.getMorphicObject(Converter.getMorphicConstructor(params[i]), (JSONObject)paramArray[i]);
     			}
     		} catch (IOException e) {
