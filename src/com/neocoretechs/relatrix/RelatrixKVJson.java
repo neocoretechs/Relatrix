@@ -36,7 +36,7 @@ import com.neocoretechs.rocksack.session.DatabaseManager;
 
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
-
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer.ElementsAndTokens;
 import com.neocoretechs.relatrix.key.DBKey;
 
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
@@ -86,16 +86,24 @@ public final class RelatrixKVJson {
 		return instance;
 	}
 
-	/**
-	 * Generate a class name from a JSONObject
-	 * @param jsono the JSONObject with the fields
-	 * @return
-	 */
-	public static String getClassName(JSONObject jsono) {
-		return RelatrixTypeSynthesizer.generateMorphicClassName(jsono,JsonRecordClassGenerator.generatedJsonClassPrefix);
+	public static ElementsAndTokens parseJson(JSONObject jsono) {
+		return RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
 	}
 	
-	public static Class<?> getClassType(JSONObject jsono) throws IllegalAccessException, IOException, ClassNotFoundException {
+	/**
+	 * Generate a class name from a JSONObject
+	 * @param jsono the parsed JSONObject with the fields
+	 * @return
+	 */
+	public static String getClassName(ElementsAndTokens jsono) {
+		return RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix,jsono);
+	}
+	
+	public static String getUserClassName(JSONObject jsono) {
+		return RelatrixTypeSynthesizer.getUserClassName(jsono);
+	}
+	
+	public static Class<?> getClassType(ElementsAndTokens jsono) throws IllegalAccessException, IOException, ClassNotFoundException {
 		BufferedMap bm = getJsonClass(jsono);
 		Class<?> c;
 		c = Class.forName(bm.getClassName(), false, classLoader);
@@ -104,7 +112,7 @@ public final class RelatrixKVJson {
 		return c;
 	}
 	
-	public static Class<?> getClassType(Alias alias, JSONObject jsono) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static Class<?> getClassType(Alias alias, ElementsAndTokens jsono) throws IllegalAccessException, IOException, ClassNotFoundException {
 		BufferedMap bm = getJsonClass(alias, jsono);
 		Class<?> c;
 		c = Class.forName(bm.getClassName(), false, classLoader);
@@ -113,26 +121,27 @@ public final class RelatrixKVJson {
 		return c;
 	}
 	
-	public static Comparable<?> getObject(JSONObject json) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static Comparable<?> getObject(ElementsAndTokens json) throws IllegalAccessException, IOException, ClassNotFoundException {
 		BufferedMap bm = getJsonClass(json);
-		return getObject(bm);
+		return getObject(bm, json);
 	}
 	
-	public static Comparable<?> getObject(Alias alias, JSONObject json) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static Comparable<?> getObject(Alias alias, ElementsAndTokens json) throws IllegalAccessException, IOException, ClassNotFoundException {
 		BufferedMap bm = getJsonClass(alias, json);
-		return getObject(bm);
+		return getObject(bm, json);
 	}
 	/**
 	 * Must call getJsonClass initially! It will define the fields and contents of fields and place them
 	 * in the RelatrixTypeSynthesizer.structuralTokens and elements.<p>
 	 * Creates a class definition from BufferedMap that represents the morphic class.
 	 * @param bm the BufferedMap with relevant class and database definition
+	 * @param elementsAndTokens Parsed JSONObject
 	 * @return The comparable object
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
+	public static Comparable<?> getObject(BufferedMap bm, ElementsAndTokens elementsAndTokens) throws IllegalAccessException, IOException {
 		Class<?> c;
 		try {
 			c = Class.forName(bm.getClassName(), false, classLoader);
@@ -142,7 +151,7 @@ public final class RelatrixKVJson {
 	   	CborBuilder cb = new CborBuilder();
     	byte[] encodedBytes;
 		try {
-			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(cb);
+			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(cb, elementsAndTokens);
 		} catch (CborException e) {
 			throw new IOException(e);
 		}
@@ -370,13 +379,13 @@ public final class RelatrixKVJson {
 	}
 	/**
 	 * Obtain the BufferedMap for the morphic class represented by the JSONObject passed.
-	 * @param jsono the JSONObject containing the fields that define a morphic class
+	 * @param jsono the parsed JSONObject containing the fields that define a morphic class
 	 * @return The BufferedMap that facilitates storage/retrieval of morphic class instances
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	public static BufferedMap getJsonClass(JSONObject jsono) throws IllegalAccessException, IOException {
-		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
+	public static BufferedMap getJsonClass(ElementsAndTokens jsono) throws IllegalAccessException, IOException {
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix, jsono);
 		BufferedMap t = mapCache.get(cjson);
 		byte[] ctype = null;
 		if(t == null) {
@@ -405,9 +414,9 @@ public final class RelatrixKVJson {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	public static BufferedMap getJsonClass(Alias alias, JSONObject jsono) throws IllegalAccessException, IOException {
-		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
-		BufferedMap t = mapCache.get(cjson);
+	public static BufferedMap getJsonClass(Alias alias, ElementsAndTokens jsono) throws IllegalAccessException, IOException {
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix, jsono);
+		BufferedMap t = mapCache.get(cjson+alias.getAlias());
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -423,7 +432,7 @@ public final class RelatrixKVJson {
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
 			t = DatabaseManager.getMap(alias, c);
-			mapCache.put(cjson, t);
+			mapCache.put(cjson+alias.getAlias(), t);
 		}
 		return t;
 	}
@@ -434,8 +443,9 @@ public final class RelatrixKVJson {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				BufferedMap ttm = getJsonClass(jsonod);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				BufferedMap ttm = getJsonClass(elementsAndTokens);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -449,8 +459,9 @@ public final class RelatrixKVJson {
 		if(value instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)value;
 			try {
-				BufferedMap ttm = getJsonClass(jsonod);
-				jvalue = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				BufferedMap ttm = getJsonClass(elementsAndTokens);
+				jvalue = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -465,8 +476,9 @@ public final class RelatrixKVJson {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				BufferedMap ttm = getJsonClass(alias, jsonod);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				BufferedMap ttm = getJsonClass(alias, elementsAndTokens);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -480,8 +492,9 @@ public final class RelatrixKVJson {
 		if(value instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)value;
 			try {
-				BufferedMap ttm = getJsonClass(alias, jsonod);
-				jvalue = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				BufferedMap ttm = getJsonClass(alias, elementsAndTokens);
+				jvalue = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -509,8 +522,9 @@ public final class RelatrixKVJson {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(jsonod);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(elementsAndTokens);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -533,8 +547,9 @@ public final class RelatrixKVJson {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(alias, jsonod);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(alias, elementsAndTokens);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -564,8 +579,9 @@ public final class RelatrixKVJson {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(jsonod);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(elementsAndTokens);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -580,8 +596,9 @@ public final class RelatrixKVJson {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttn = getJsonClass(jsonod);
-				jkey2 = getObject(ttn);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttn = getJsonClass(elementsAndTokens);
+				jkey2 = getObject(ttn, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -606,8 +623,9 @@ public final class RelatrixKVJson {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(alias, jsonod);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(alias, elementsAndTokens);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -622,8 +640,9 @@ public final class RelatrixKVJson {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttn = getJsonClass(alias, jsonod);
-				jkey2 = getObject(ttn);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttn = getJsonClass(alias, elementsAndTokens);
+				jkey2 = getObject(ttn, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}

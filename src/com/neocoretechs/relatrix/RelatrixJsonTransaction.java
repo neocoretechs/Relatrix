@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer.ElementsAndTokens;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode0JsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode1JsonTransaction;
@@ -290,8 +292,9 @@ public final class RelatrixJsonTransaction {
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(d instanceof JSONObject) {
 			jsono = (JSONObject)d;
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(d instanceof Comparable<?>) {
 				jkeyd = (Comparable<?>)d;
@@ -301,8 +304,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(m instanceof JSONObject) {
 			jsono = (JSONObject)m;
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(m instanceof Comparable<?>) {
 				jkeym = (Comparable<?>)m;
@@ -312,8 +316,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(r instanceof JSONObject) {
 			jsono = (JSONObject)r;
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
 				jkeyr = (Comparable<?>)m;
@@ -373,8 +378,9 @@ public final class RelatrixJsonTransaction {
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(d instanceof JSONObject) {
 			jsono = (JSONObject)d;
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(d instanceof Comparable<?>) {
 				jkeyd = (Comparable<?>)d;
@@ -384,8 +390,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(m instanceof JSONObject) {
 			jsono = (JSONObject)m;
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(m instanceof Comparable<?>) {
 				jkeym = (Comparable<?>)m;
@@ -395,8 +402,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(r instanceof JSONObject) {
 			jsono = (JSONObject)r;
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
 				jkeyr = (Comparable<?>)m;
@@ -455,8 +463,9 @@ public final class RelatrixJsonTransaction {
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(tuple[0] instanceof JSONObject) {
 			jsono = (JSONObject)tuple[0];
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(tuple[0] instanceof Comparable<?>) {
 				jkeyd = (Comparable<?>)tuple[0];
@@ -466,8 +475,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(tuple[1] instanceof JSONObject) {
 			jsono = (JSONObject)tuple[1];
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(tuple[1] instanceof Comparable<?>) {
 				jkeym = (Comparable<?>)tuple[1];
@@ -477,8 +487,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(tuple[2] instanceof JSONObject) {
 			jsono = (JSONObject)tuple[2];
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(tuple[2] instanceof Comparable<?>) {
 				jkeyr = (Comparable<?>)tuple[2];
@@ -514,8 +525,9 @@ public final class RelatrixJsonTransaction {
 			tuple = tuples.get(i);
 			if(tuple[0] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[0];
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-				jkeyd = RelatrixKVJsonTransaction.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+				jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[0] instanceof Comparable<?>) {
 					jkeyd = (Comparable<?>)tuple[0];
@@ -525,8 +537,9 @@ public final class RelatrixJsonTransaction {
 			}
 			if(tuple[1] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[1];
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(jsono, xid);
-				jkeym = RelatrixKVJsonTransaction.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+				jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[1] instanceof Comparable<?>) {
 					jkeym = (Comparable<?>)tuple[1];
@@ -570,8 +583,9 @@ public final class RelatrixJsonTransaction {
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(tuple[0] instanceof JSONObject) {
 			jsono = (JSONObject)tuple[0];
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(tuple[0] instanceof Comparable<?>) {
 				jkeyd = (Comparable<?>)tuple[0];
@@ -581,8 +595,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(tuple[1] instanceof JSONObject) {
 			jsono = (JSONObject)tuple[1];
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(tuple[1] instanceof Comparable<?>) {
 				jkeym = (Comparable<?>)tuple[1];
@@ -592,8 +607,9 @@ public final class RelatrixJsonTransaction {
 		}
 		if(tuple[2] instanceof JSONObject) {
 			jsono = (JSONObject)tuple[2];
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(tuple[2] instanceof Comparable<?>) {
 				jkeyr = (Comparable<?>)tuple[2];
@@ -630,8 +646,9 @@ public final class RelatrixJsonTransaction {
 			tuple = tuples.get(i);
 			if(tuple[0] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[0];
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-				jkeyd = RelatrixKVJsonTransaction.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+				jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[0] instanceof Comparable<?>) {
 					jkeyd = (Comparable<?>)tuple[0];
@@ -641,8 +658,9 @@ public final class RelatrixJsonTransaction {
 			}
 			if(tuple[1] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[1];
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, jsono, xid);
-				jkeym = RelatrixKVJsonTransaction.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+				jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[1] instanceof Comparable<?>) {
 					jkeym = (Comparable<?>)tuple[1];

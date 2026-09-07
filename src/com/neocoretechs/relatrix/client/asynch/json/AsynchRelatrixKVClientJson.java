@@ -26,7 +26,7 @@ import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.json.RelatrixKVStatementJson;
 import com.neocoretechs.relatrix.client.json.util.Converter;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
-
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -115,7 +115,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	}
 	
 	public Class<?> createClass(JSONObject jo) {
-		String className = Converter.getMorphicClassname(jo);
+		String className = Converter.getMorphicClassname(RelatrixTypeSynthesizer.extractStructuralTokens("", jo));
        	byte[] ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   
     	Class<?> c = getClassLoader().defineAClass(className, ctype);
 		getClassLoader().setBytesInRepository(className, ctype);
@@ -270,16 +270,16 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixKVStatementJson(null,args[2], args[3]);
+				rs = new RelatrixKVStatementJson(UUID.randomUUID(),args[2], args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVStatementJson(null,args[2],args[3], args[4]);
+				rs = new RelatrixKVStatementJson(UUID.randomUUID(),args[2],args[3], args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVStatementJson(null,args[2],args[3],args[4], args[5]);
+				rs = new RelatrixKVStatementJson(UUID.randomUUID(),args[2],args[3],args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVStatementJson(null,args[2],args[3],args[4],args[5], args[6]);
+				rs = new RelatrixKVStatementJson(UUID.randomUUID(),args[2],args[3],args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

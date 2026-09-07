@@ -22,7 +22,8 @@ import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.json.util.Converter;
-
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer.ElementsAndTokens;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
@@ -63,9 +64,10 @@ public class RelatrixKVStatementJson extends RelatrixKVStatement implements Rela
     	for(int i = 0; i < params.length; i++) {
     		try {
     			if(paramArray[i] instanceof JSONObject) {
-    				paramTypes[i] = Converter.getMorphicClassname((JSONObject) paramArray[i]);
+    				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", (JSONObject)paramArray[i]);
+    				paramTypes[i] = Converter.getMorphicClassname(elementsAndTokens);
     				params[i] = Converter.getMorphicClass(paramTypes[i]);
-    				paramArray[i] = Converter.getMorphicObject(Converter.getMorphicConstructor(params[i]), (JSONObject)paramArray[i]);
+    				paramArray[i] = Converter.getMorphicObject(Converter.getMorphicConstructor(params[i]), elementsAndTokens);
     			}
     		} catch (IOException e) {
     			throw new RuntimeException(e);

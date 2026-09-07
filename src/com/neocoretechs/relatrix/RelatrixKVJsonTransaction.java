@@ -33,7 +33,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
-
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer.ElementsAndTokens;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -81,17 +81,20 @@ public final class RelatrixKVJsonTransaction {
 		}
 		return instance;
 	}
-
+	
+	public static ElementsAndTokens parseJson(JSONObject jsono) {
+		return RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+	}
 	/**
 	 * Generate a class name from a JSONObject
 	 * @param jsono the JSONObject with the fields
 	 * @return
 	 */
-	public static String getClassName(JSONObject jsono) {
-		return RelatrixTypeSynthesizer.generateMorphicClassName(jsono,JsonRecordClassGenerator.generatedJsonClassPrefix);
+	public static String getClassName(ElementsAndTokens jsono) {
+		return RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix,jsono);
 	}
 	
-	public static Class<?> getClassType(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static Class<?> getClassType(ElementsAndTokens jsono, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
 		TransactionalMap tm = getJsonClass(jsono, xid);
 		Class<?> c;
 		c = Class.forName(tm.getClassName(), false, classLoader);
@@ -100,7 +103,7 @@ public final class RelatrixKVJsonTransaction {
 		return c;
 	}
 	
-	public static Class<?> getClassType(JSONObject jsono, Alias alias, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static Class<?> getClassType(ElementsAndTokens jsono, Alias alias, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
 		TransactionalMap tm = getJsonClass(alias, jsono, xid);
 		Class<?> c;
 		c = Class.forName(tm.getClassName(), false, classLoader);
@@ -109,21 +112,22 @@ public final class RelatrixKVJsonTransaction {
 		return c;
 	}
 	
-	public static Comparable<?> getObject(JSONObject json, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static Comparable<?> getObject(ElementsAndTokens json, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
 		TransactionalMap tm = getJsonClass(json, xid);
-		return getObject(tm);
+		return getObject(tm, json);
 	}
 	/**
 	 * Must call getJsonClass initially! It will define the fields and contents of fields and place them
 	 * in the RelatrixTypeSynthesizer.structuralTokens and elements.<p>
 	 * Creates a class definition from BufferedMap that represents the morphic class.
 	 * @param tm the TransactionalMap with relevant class and database definition
+	 * @param elementsAndTokens TODO
 	 * @return The comparable object
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public static Comparable<?> getObject(TransactionalMap tm) throws IllegalAccessException, IOException {
+	public static Comparable<?> getObject(TransactionalMap tm, ElementsAndTokens elementsAndTokens) throws IllegalAccessException, IOException {
 		Class<?> c;
 		try {
 			c = Class.forName(tm.getClassName(), false, classLoader);
@@ -133,7 +137,7 @@ public final class RelatrixKVJsonTransaction {
 	   	CborBuilder cb = new CborBuilder();
     	byte[] encodedBytes;
 		try {
-			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(cb);
+			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(cb, elementsAndTokens);
 		} catch (CborException e) {
 			throw new IOException(e);
 		}
@@ -364,8 +368,8 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	public static TransactionalMap getJsonClass(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
-		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
+	public static TransactionalMap getJsonClass(ElementsAndTokens jsono, TransactionId xid) throws IllegalAccessException, IOException {
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix, jsono);
 		TransactionalMap t = mapCache.get(cjson+xid);
 		byte[] ctype = null;
 		if(t == null) {
@@ -400,8 +404,8 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	public static TransactionalMap getJsonClass(Alias alias, JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
-		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
+	public static TransactionalMap getJsonClass(Alias alias, ElementsAndTokens jsono, TransactionId xid) throws IllegalAccessException, IOException {
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix, jsono);
 		TransactionalMap t = mapCache.get(cjson+xid+alias.getAlias());
 		byte[] ctype = null;
 		if(t == null) {
@@ -490,8 +494,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				TransactionalMap ttm = getJsonClass(jsonod, xid);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				TransactionalMap ttm = getJsonClass(elementsAndTokens, xid);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -505,8 +510,9 @@ public final class RelatrixKVJsonTransaction {
 		if(value instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)value;
 			try {
-				TransactionalMap ttm = getJsonClass(jsonod, xid);
-				jvalue = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				TransactionalMap ttm = getJsonClass(elementsAndTokens, xid);
+				jvalue = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -521,8 +527,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				TransactionalMap ttm = getJsonClass(alias, jsonod, xid);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				TransactionalMap ttm = getJsonClass(alias, elementsAndTokens, xid);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -536,8 +543,9 @@ public final class RelatrixKVJsonTransaction {
 		if(value instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)value;
 			try {
-				TransactionalMap ttm = getJsonClass(alias, jsonod, xid);
-				jvalue = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				TransactionalMap ttm = getJsonClass(alias, elementsAndTokens, xid);
+				jvalue = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -558,8 +566,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(jsonod, xid);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(elementsAndTokens, xid);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -583,8 +592,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(alias, jsonod, xid);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(alias, elementsAndTokens, xid);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -614,8 +624,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(jsonod, xid);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(elementsAndTokens, xid);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -630,8 +641,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttn = getJsonClass(jsonod, xid);
-				jkey2 = getObject(ttn);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttn = getJsonClass(elementsAndTokens, xid);
+				jkey2 = getObject(ttn, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -656,8 +668,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
-				ttm = getJsonClass(alias, jsonod, xid);
-				jkey = getObject(ttm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttm = getJsonClass(alias, elementsAndTokens, xid);
+				jkey = getObject(ttm, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
@@ -672,8 +685,9 @@ public final class RelatrixKVJsonTransaction {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttn = getJsonClass(alias, jsonod, xid);
-				jkey2 = getObject(ttn);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsonod);
+				ttn = getJsonClass(alias, elementsAndTokens, xid);
+				jkey2 = getObject(ttn, elementsAndTokens);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}

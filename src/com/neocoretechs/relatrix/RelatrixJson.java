@@ -20,6 +20,8 @@ import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer.ElementsAndTokens;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode0Json;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode1Json;
@@ -247,8 +249,9 @@ public final class RelatrixJson {
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(d instanceof JSONObject) {
 			jsono = (JSONObject)d;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-			jkeyd = RelatrixKVJson.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(elementsAndTokens);
+			jkeyd = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(d instanceof Comparable<?>) {
 				jkeyd = (Comparable<?>)d;
@@ -258,8 +261,9 @@ public final class RelatrixJson {
 		}
 		if(m instanceof JSONObject) {
 			jsono = (JSONObject)m;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-			jkeym = RelatrixKVJson.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(elementsAndTokens);
+			jkeym = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(m instanceof Comparable<?>) {
 				jkeym = (Comparable<?>)m;
@@ -269,8 +273,9 @@ public final class RelatrixJson {
 		}
 		if(r instanceof JSONObject) {
 			jsono = (JSONObject)r;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-			jkeyr = RelatrixKVJson.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(elementsAndTokens);
+			jkeyr = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
 				jkeyr = (Comparable<?>)m;
@@ -295,8 +300,9 @@ public final class RelatrixJson {
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(d instanceof JSONObject) {
 			jsono = (JSONObject)d;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeyd = RelatrixKVJson.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, elementsAndTokens);
+			jkeyd = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(d instanceof Comparable<?>) {
 				jkeyd = (Comparable<?>)d;
@@ -306,8 +312,9 @@ public final class RelatrixJson {
 		}
 		if(m instanceof JSONObject) {
 			jsono = (JSONObject)m;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeym = RelatrixKVJson.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, elementsAndTokens);
+			jkeym = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(m instanceof Comparable<?>) {
 				jkeym = (Comparable<?>)m;
@@ -317,8 +324,9 @@ public final class RelatrixJson {
 		}
 		if(r instanceof JSONObject) {
 			jsono = (JSONObject)r;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeyr = RelatrixKVJson.getObject(ttmm);
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, elementsAndTokens);
+			jkeyr = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
 				jkeyr = (Comparable<?>)m;
@@ -488,8 +496,9 @@ public final class RelatrixJson {
 			tuple = tuples.get(i);
 			if(tuple[0] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[0];
-				BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-				jkeym = RelatrixKVJson.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				BufferedMap ttmm = RelatrixKVJson.getJsonClass(elementsAndTokens);
+				jkeym = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[0] instanceof Comparable<?>) {
 					jkeym = (Comparable<?>)tuple[0];
@@ -499,8 +508,9 @@ public final class RelatrixJson {
 			}
 			if(tuple[1] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[1];
-				BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-				jkeyr = RelatrixKVJson.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				BufferedMap ttmm = RelatrixKVJson.getJsonClass(elementsAndTokens);
+				jkeyr = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[1] instanceof Comparable<?>) {
 					jkeyr = (Comparable<?>)tuple[1];
@@ -562,8 +572,9 @@ public final class RelatrixJson {
 			tuple = tuples.get(i);
 			if(tuple[0] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[0];
-				BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-				jkeym = RelatrixKVJson.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, elementsAndTokens);
+				jkeym = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[0] instanceof Comparable<?>) {
 					jkeym = (Comparable<?>)tuple[0];
@@ -573,8 +584,9 @@ public final class RelatrixJson {
 			}
 			if(tuple[1] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[1];
-				BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-				jkeyr = RelatrixKVJson.getObject(ttmm);
+				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+				BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, elementsAndTokens);
+				jkeyr = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 			} else {
 				if(tuple[1] instanceof Comparable<?>) {
 					jkeyr = (Comparable<?>)tuple[1];

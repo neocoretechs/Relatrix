@@ -35,27 +35,23 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
  */
 public class RelatrixTypeSynthesizer {
     private static boolean DEBUG = false;
-    public static List<Object> elements = new ArrayList<>();
-    public static List<String> structuralTokens = new ArrayList<>();
+  
     private static Object mutex = new Object();
     public static final String morphicClassPrefix = "Relatrix_";
+    
+    public static record ElementsAndTokens(List<Object> elements, List<String> structuralTokens) {}
+    
 	/**
      * Generates a deterministic class name based on the unique structure of an ad-hoc node. Calls extractStructuralTokens to setup generateMorphicPayload.
-     * @param node The JSON object holding the data fields
-     * @param classPrefix The constant string that will prefix the final generated class name
+	 * @param classPrefix The constant string that will prefix the final generated class name
+	 * @param elementsAndTokens Parsed JSONobject
      */
-    public static String generateMorphicClassName(JSONObject node, String classPrefix) {
+    public static String generateMorphicClassName(String classPrefix, ElementsAndTokens elementsAndTokens) {
     	synchronized(mutex) {
-    		structuralTokens.clear();
-    		elements.clear();
-    		extractStructuralTokens("", node, structuralTokens, elements);
-
     		// Create the canonical signature string
-    		String canonicalSignature = String.join(";", structuralTokens);
-
+    		String canonicalSignature = String.join(";", elementsAndTokens.structuralTokens);
     		// Hash the signature using a standard deterministic fingerprint
     		String structureHash = computeFastHash(canonicalSignature);
-
     		// Return a clean, safe Java class name identifier
     		return classPrefix + "_" + structureHash;
     	}
@@ -68,33 +64,39 @@ public class RelatrixTypeSynthesizer {
      */
     public static String getUserClassName(JSONObject node) throws JSONException {
     	synchronized(mutex) {
-    		structuralTokens.clear();
-    		elements.clear();
-    		extractStructuralTokens("", node, structuralTokens, elements);
     		return node.getString("ClassName");
     	}
     }
     /**
      * CborBuilder creates the payload
-     * @param node The JSONObject that has the payload
+     * @param elementsAndTokens parsed JSONObject
      * @return The byte array that has the payload
      * @throws CborException If parsing fails
      */
-    public static byte[] encodeCborPayload(JSONObject node) throws CborException {
+    public static byte[] encodeCborPayload(ElementsAndTokens elementsAndTokens) throws CborException {
     	synchronized(mutex) {
-    		structuralTokens.clear();
-    		elements.clear();
-    		extractStructuralTokens("", node, structuralTokens, elements);
     		CborBuilder cb = new CborBuilder();
-    		return generateMorphicPayload(cb);
+    		return generateMorphicPayload(cb, elementsAndTokens);
     	}
     }
     /**
+     * Generate the base working record of parsed structural elements and tokens of the JSONObject
+     * @param path base path - appends path and . to fieldname if not empty
+     * @param node source
+     * @return ElementsAndTokens record with populated lists
+     */
+    public static ElementsAndTokens extractStructuralTokens(String path, JSONObject node) {
+    	List<Object> elements = new ArrayList<>();
+    	List<String> structuralTokens = new ArrayList<>();
+    	extractStructuralTokens(path, node, structuralTokens, elements);
+    	return new ElementsAndTokens(elements, structuralTokens);
+    }
+    /**
      * Recursively traverse the node structure  populating the tokens and values lists
-     * @param path the aggregate path of field names which increases on fieldnames of recursive depth
-     * @param node
-     * @param tokens
-     * @param values
+     * @param path the aggregate path of field names which increases on fieldnames of recursive depth if not empty
+     * @param node source
+     * @param tokens list to receive tokens
+     * @param values list to receive elements
      */
     private static void extractStructuralTokens(String path, JSONObject node, List<String> tokens, List<Object> values) {
     	String[] names = JSONObject.getNames(node);
@@ -132,15 +134,16 @@ public class RelatrixTypeSynthesizer {
     /**
      * Must call extractStructuralTokens first!
      * Create the byte array final payload from the list of tokens and elements using the supplied builder
+     * @param cb Cbor builder
+     * @param elementsAndTokens result record of extractStructuralTokens
      * @param structuralTokens List of field names
      * @param elements List of field objects
-     * @param cb Cbor builder
      * @return The constructed byte array
      * @throws CborException
      */
-    public static byte[] generateMorphicPayload(CborBuilder cb) throws CborException {
+    public static byte[] generateMorphicPayload(CborBuilder cb, ElementsAndTokens elementsAndTokens) throws CborException {
     	synchronized(mutex) {
-    		buildCBOR(structuralTokens, elements, cb);
+    		buildCBOR(elementsAndTokens.structuralTokens, elementsAndTokens.elements, cb);
     		ByteArrayOutputStream baos = new ByteArrayOutputStream();
     		new CborEncoder(baos).encode(cb.build());
     		return baos.toByteArray();
@@ -234,7 +237,8 @@ public class RelatrixTypeSynthesizer {
     	JSONObject jo = new JSONObject(x);
     	HandlerClassLoader hcl = new HandlerClassLoader();
     	long tim = System.nanoTime();
-    	String className = generateMorphicClassName(jo,RelatrixTypeSynthesizer.morphicClassPrefix);
+    	RelatrixTypeSynthesizer.ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jo);
+    	String className = generateMorphicClassName(RelatrixTypeSynthesizer.morphicClassPrefix,elementsAndTokens);
        	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   	
       	Class<?> c;
       	try {
@@ -243,7 +247,7 @@ public class RelatrixTypeSynthesizer {
     		c = hcl.defineAClass(className, b);
       	}
       	CborBuilder cb = new CborBuilder();
-    	byte[] encodedBytes = generateMorphicPayload(cb);
+    	byte[] encodedBytes = generateMorphicPayload(cb, elementsAndTokens);
     	Constructor ctor = c.getConstructor(byte[].class);
     	Object o = ctor.newInstance(encodedBytes);
         System.out.println("nanos="+(System.nanoTime()-tim));
@@ -253,16 +257,19 @@ public class RelatrixTypeSynthesizer {
     	// try another instance
     	String y = "{\"timestamp\":1779166000302,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
     	JSONObject jo2 = new JSONObject(y);
-    	Object o2 = ctor.newInstance(encodeCborPayload(jo2));
+    	elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jo2);
+    	Object o2 = ctor.newInstance(encodeCborPayload(elementsAndTokens));
     	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
     	jo2 = new JSONObject(x);
-    	o2 = ctor.newInstance(encodeCborPayload(jo2));
+    	elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jo2);
+    	o2 = ctor.newInstance(encodeCborPayload(elementsAndTokens));
       	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
     	String z = "{\"timestamp\":1779166000300,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
     	jo2 = new JSONObject(z);
-    	o2 = ctor.newInstance(encodeCborPayload(jo2));
+    	elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jo2);
+    	o2 = ctor.newInstance(encodeCborPayload(elementsAndTokens));
       	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
     	//File f = new File("C:/Users/jg/workspace/relatrix/build/test.ser");

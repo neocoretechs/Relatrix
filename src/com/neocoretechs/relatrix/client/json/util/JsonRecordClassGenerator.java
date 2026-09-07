@@ -138,7 +138,7 @@ public final class JsonRecordClassGenerator {
     	HandlerClassLoader hcl = new HandlerClassLoader();
     	long tim = System.nanoTime();
     	JSONObject j = new JSONObject(x);
-    	String className = RelatrixTypeSynthesizer.generateMorphicClassName(j,JsonRecordClassGenerator.generatedJsonClassPrefix);
+    	String className = RelatrixTypeSynthesizer.generateMorphicClassName(JsonRecordClassGenerator.generatedJsonClassPrefix,RelatrixTypeSynthesizer.extractStructuralTokens("", j));
     	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);
 		Class<?> c = Class.forName(className, false, hcl);
 		if (c == null)

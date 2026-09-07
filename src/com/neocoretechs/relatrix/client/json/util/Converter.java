@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import org.json.cbor.CborException;
 
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer.ElementsAndTokens;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
@@ -27,48 +28,50 @@ public class Converter {
 	/**
 	 * Generate morphic object from JSONObject
 	 * @param jsono the JSONObject
+	 * @param elementsAndTokens result of parsing JSONObject
 	 * @return the morphic Object
 	 * @throws IOException
 	 */
-	public static Object getMorphicObject(JSONObject jsono) throws IOException {
-		Constructor ctor = getMorphicConstructor(jsono);
-		return getMorphicObject(ctor, jsono);
+	public static Object getMorphicObject(JSONObject jsono, ElementsAndTokens elementsAndTokens) throws IOException {
+		Constructor ctor = getMorphicConstructor(elementsAndTokens);
+		return getMorphicObject(ctor, elementsAndTokens);
 	}
 	/**
 	 * Generate objects of className from JSONObject
 	 * @param className class name from getMorphicClassName
-	 * @param jsono the JSONObject that generated the class name
+	 * @param elementsAndTokens Parsed JSONObject
 	 * @return The new Object
 	 * @throws IOException
+	 * @throws ClassNotFoundException 
 	 */
-	public static Object getMorphicObject(String className, JSONObject jsono) throws IOException {
-		Constructor ctor = getMorphicConstructor(className, jsono);
-		return getMorphicObject(ctor, jsono);
+	public static Object getMorphicObject(String className, ElementsAndTokens elementsAndTokens) throws IOException, ClassNotFoundException {
+		Constructor ctor = getMorphicConstructor(Class.forName(className));
+		return getMorphicObject(ctor, elementsAndTokens);
 	}
 	
 	/**
 	 * Generate objects of same class as getMorphicConstructor
 	 * @param ctor
-	 * @param jsono
-	 * @return
+	 * @param elementsAndTokens Result of parsing JSONObject
+	 * @return Instantiated object
 	 * @throws IOException
 	 */
-	public static Object getMorphicObject(Constructor ctor, JSONObject jsono) throws IOException {
+	public static Object getMorphicObject(Constructor ctor, ElementsAndTokens elementsAndTokens) throws IOException {
     	try {
-			return ctor.newInstance(RelatrixTypeSynthesizer.encodeCborPayload(jsono));
+			return ctor.newInstance(RelatrixTypeSynthesizer.encodeCborPayload(elementsAndTokens));
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | CborException e) {
 			throw new IOException(e);
 		}
 	}
 	/**
-	 * Generate a morphic class name from a JSONObject using {@link RelatrixTypeSynthesizer}
-	 * @param jsono the JSONObject
+	 * Generate a morphic class name from a ElementsAndTokens using {@link RelatrixTypeSynthesizer}
+	 * @param elementsAndTokens Parsed JSONObject
 	 * @return the morphic class name
 	 * @throws IOException
 	 */
-	public static String getMorphicClassname(JSONObject jsono) {
+	public static String getMorphicClassname(ElementsAndTokens elementsAndTokens) {
 		// calls extractStructuralTokens, populates fields with JSONObject o
-    	return RelatrixTypeSynthesizer.generateMorphicClassName((JSONObject)jsono,RelatrixTypeSynthesizer.morphicClassPrefix);
+    	return RelatrixTypeSynthesizer.generateMorphicClassName(RelatrixTypeSynthesizer.morphicClassPrefix,elementsAndTokens);
 	}
 	/**
 	 * Generate a morphic class name from a JSONObject using {@link RelatrixTypeSynthesizer}
@@ -98,13 +101,13 @@ public class Converter {
 	}
 	/**
 	 * Get a morphic constructor from a JSONObject using {@link RelatrixTypeSynthesizer} and {@link JsonRecordClassGenerator}
-	 * @param jsono the JSONObject
+	 * @param elementsAndTokens Parsed JSONObject
 	 * @return the morphic constructor
 	 * @throws IOException
 	 */
-	public static Constructor getMorphicConstructor(JSONObject jsono) throws IOException {
+	public static Constructor getMorphicConstructor(ElementsAndTokens elementsAndTokens) throws IOException {
 		// calls extractStructuralTokens, populates fields with JSONObject o
-    	String className = RelatrixTypeSynthesizer.generateMorphicClassName((JSONObject)jsono,RelatrixTypeSynthesizer.morphicClassPrefix);
+    	String className = RelatrixTypeSynthesizer.generateMorphicClassName(RelatrixTypeSynthesizer.morphicClassPrefix,elementsAndTokens);
     	byte[] ctype = null;
       	Class<?> c;
       	try {
@@ -163,8 +166,8 @@ public class Converter {
 	 */
 	public static byte[] getMorphicBytes(Object morphic) throws IOException {
 		Field field;
-		byte[] b = null;
-		String s = null;
+		//byte[] b = null;
+		//String s = null;
 		try {
 			field = morphic.getClass().getField("cbor");
 			return (byte[]) field.get(morphic);
@@ -175,13 +178,14 @@ public class Converter {
 	/**
 	 * Get the morphic object from the byte payload using getJsonObject
 	 * @param payload
+	 * @param elementsAndTokens Parsed JSONObject
 	 * @return
 	 * @throws IOException
 	 */
-	public static Object getMorphicObject(byte[] payload) throws IOException {
+	public static Object getMorphicObject(byte[] payload, ElementsAndTokens elementsAndTokens) throws IOException {
 		try {
 			JSONObject jsono = getJsonObject(payload);
-			return getMorphicObject(jsono);
+			return getMorphicObject(jsono, elementsAndTokens);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
@@ -224,9 +228,10 @@ public class Converter {
 	 * @return A String value of the payload with fields sorted and normalized
 	 * @throws IOException
 	 */
-	public static String normalizeJson(JSONObject payload ) throws IOException {
+	public static String normalizeJson(JSONObject payload) throws IOException {
 		try {
-			return RelatrixTypeSynthesizer.decodeCborPayload(RelatrixTypeSynthesizer.encodeCborPayload(payload));
+			
+			return RelatrixTypeSynthesizer.decodeCborPayload(RelatrixTypeSynthesizer.encodeCborPayload(RelatrixTypeSynthesizer.extractStructuralTokens("",payload)));
 		} catch (CborException e) {
 			throw new IOException(e);
 		}
