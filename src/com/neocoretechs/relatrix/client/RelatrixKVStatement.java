@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
@@ -280,7 +281,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 			return;
 		}
 		// put it in the array and send our intermediary back
-		if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
+		if(result != null && result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
 			if( DEBUG ) {
 				System.out.printf("%s setting kev/value object return for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
@@ -294,7 +295,13 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 
 	@Override
 	public void setServerObjectReturn(Object o) {
-		objectReturn = 0;
+		if(o instanceof AbstractRelation) {
+			objectReturn = TransportMorphism.createTransport((Relation) o);
+		} else {
+			if(o instanceof TransportMorphismInterface)
+				((TransportMorphismInterface)o).packForTransport();
+			objectReturn = o;
+		}
 		this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
  		this.params = new Class[0];

@@ -280,20 +280,22 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
-			if(result instanceof AbstractRelation) {
-				Relation.resolve((Relation) result);
-			} else {
-				if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
-					Relation rel = (Relation) ((Result)result).get();
-					Relation.resolve(rel);
-					((Result)result).set(rel);
+			if(result != null) {
+				if(result instanceof AbstractRelation) {
+					Relation.resolve((Relation) result);
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
+						Relation rel = (Relation) ((Result)result).get();
+						Relation.resolve(rel);
+						((Result)result).set(rel);
+					}
 				}
 			}
 			setServerObjectReturn(result);
 			signalCompletion(result);
 		}
 	}
- 
+
 
 	@Override
 	public void setServerObjectReturn(Object o) {

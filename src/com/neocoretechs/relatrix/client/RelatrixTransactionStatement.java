@@ -101,13 +101,15 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
-			if(result instanceof AbstractRelation) {
-				Relation.resolve((Relation) result);
-			} else {
-				if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
-					Relation rel = (Relation) ((Result)result).get();
-					Relation.resolve(rel);
-					((Result)result).set(rel);
+			if(result != null) {
+				if(result instanceof AbstractRelation) {
+					Relation.resolve((Relation) result);
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
+						Relation rel = (Relation) ((Result)result).get();
+						Relation.resolve(rel);
+						((Result)result).set(rel);
+					}
 				}
 			}
 			setServerObjectReturn(result);

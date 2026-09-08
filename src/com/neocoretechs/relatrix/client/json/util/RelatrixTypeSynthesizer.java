@@ -57,7 +57,7 @@ public class RelatrixTypeSynthesizer {
     	}
     }
     /**
-     * Extracts a user class name from the ClassName field
+     * Extracts a user class name from the ClassName field, must also extractStructuralTokens at some point
      * @param node the JSONObject containing the ClassName field
      * @return The value of the field, also populates tokens and elements
      * @throws JSONException

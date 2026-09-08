@@ -125,7 +125,6 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 	public Iterator findTailMapKV(Object arg1) throws java.io.IOException {
 		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findTailMapKV", arg1);
 		try {
-			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Object "+s);
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
