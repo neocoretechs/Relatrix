@@ -88,12 +88,7 @@ public class RelatrixKVStatementJson extends RelatrixKVStatement implements Rela
 		Object result = RelatrixKVServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
-		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
 		if(result != null && !(result instanceof Serializable) && !(result instanceof Externalizable) ) {
-			// Stream..? If so, we basically forego the local stream and
-			// preserve the underlying iterator, sending back the corresponding remote iterator.
-			// The client, being engaged in a steam operation, will create the local RemoteStream with returned
-			// remote iterator
 			// Stream..? If so, we basically forego the local stream and
 			// preserve the underlying iterator, sending back the corresponding remote iterator.
 			// The client, being engaged in a steam operation, will create the local RemoteStream with returned
