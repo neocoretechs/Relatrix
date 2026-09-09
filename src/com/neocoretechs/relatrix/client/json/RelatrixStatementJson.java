@@ -8,6 +8,9 @@ import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.UUID;
 
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 
 import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
@@ -82,6 +85,24 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
+			// put it in the array and send our intermediary back
+			if(result != null) {
+				switch(result) {
+				case AbstractRelation _ -> {
+					Relation.resolve((Relation) result);
+				}
+				case Result _ -> {
+					if(((Result)result).get() instanceof AbstractRelation) {
+						Relation rel = (Relation) ((Result)result).get();
+						Relation.resolve(rel);
+						((Result)result).set(rel);
+					}
+				}
+				default -> {
+					break;
+				}
+				}
+			}
 			setObjectReturn(result);
 			signalCompletion(result);
 		}

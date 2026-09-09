@@ -11,6 +11,8 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -491,7 +493,7 @@ public final class Relatrix {
 		   return returnList;
 	}
 	
-	public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
+	/*public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		Future<?>[] jobs = new Future[6];
@@ -598,6 +600,143 @@ public final class Relatrix {
 				}
 			},storeX);
 			SynchronizedThreadManager.waitForCompletion(jobs);
+		}
+		if(DEBUG)
+			System.out.println(identity);
+		if(semaphore.get() > 0)
+			throw writeException;
+	}*/
+	public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		try (var scope = StructuredTaskScope.open()) {
+			Subtask<Runnable> subtask1 = scope.fork(() -> new Runnable() {
+				@Override
+				public void run() {
+					if(semaphore.get() == 0) // error flag, if any task increments, abort write
+						try {
+							RelatrixKV.store(pk, identity.getIdentity());
+							if(DEBUG)
+								System.out.println("Relatrix.store stored primary:"+pk);
+						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+							if(semaphore.get() == 0)
+								writeException.initCause(e);
+							else
+								writeException.addSuppressed(e);
+							semaphore.getAndIncrement();
+						}
+				}
+			});
+			Subtask<Runnable> subtask2 = scope.fork(() -> new Runnable() {
+				@Override
+				public void run() {
+					if(semaphore.get() == 0) // error flag, if any task increments, abort write
+						try {
+							AbstractRelation dmr = new MapDomainRange(identity);
+							RelatrixKV.store(dmr, identity.getIdentity());	
+							if( DEBUG  )
+								System.out.println("Relatrix.store stored :"+dmr);
+						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+							if(semaphore.get() == 0)
+								writeException.initCause(e);
+							else
+								writeException.addSuppressed(e);
+							semaphore.getAndIncrement();
+						}
+				}
+			});
+			Subtask<Runnable> subtask3 = scope.fork(() -> new Runnable() {
+				@Override
+				public void run() {
+					if(semaphore.get() == 0) // error flag, if any task increments, abort write
+						try {
+							AbstractRelation dmr = new DomainRangeMap(identity);
+							RelatrixKV.store(dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("Relatrix.store stored :"+dmr);
+						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+							if(semaphore.get() == 0)
+								writeException.initCause(e);
+							else
+								writeException.addSuppressed(e);
+							semaphore.getAndIncrement();
+						}
+				}
+			});
+			Subtask<Runnable> subtask4 = scope.fork(() -> new Runnable() {
+				@Override
+				public void run() {
+					if(semaphore.get() == 0) // error flag, if any task increments, abort write
+						try {
+							AbstractRelation dmr = new MapRangeDomain(identity);
+							RelatrixKV.store(dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("Relatrix.store stored :"+dmr);
+						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+							if(semaphore.get() == 0)
+								writeException.initCause(e);
+							else
+								writeException.addSuppressed(e);
+							semaphore.getAndIncrement();
+						}
+				}
+			});
+			Subtask<Runnable> subtask5 = scope.fork(() -> new Runnable() {
+				@Override
+				public void run() {
+					if(semaphore.get() == 0) // error flag, if any task increments, abort write
+						try {
+							AbstractRelation dmr = new RangeDomainMap(identity);
+							RelatrixKV.store(dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("Relatrix.store stored :"+dmr);
+						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+							if(semaphore.get() == 0)
+								writeException.initCause(e);
+							else
+								writeException.addSuppressed(e);
+							semaphore.getAndIncrement();
+						}
+				}
+			});
+			Subtask<Runnable> subtask6 = scope.fork(() -> new Runnable() {
+				@Override
+				public void run() {
+					if(semaphore.get() == 0) // error flag, if any task increments, abort write
+						try {
+							AbstractRelation dmr = new RangeMapDomain(identity);
+							RelatrixKV.store(dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("Relatrix.store stored :"+dmr);
+						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+							if(semaphore.get() == 0)
+								writeException.initCause(e);
+							else
+								writeException.addSuppressed(e);
+							semaphore.getAndIncrement();
+						}
+				}
+			});
+			// throws if any subtask fails
+			scope.join();
+			// both subtasks completed successfully
+			subtask1.get();
+			subtask2.get();
+			subtask3.get();
+			subtask4.get();
+			subtask5.get();
+			subtask6.get();
+		} catch (Exception e) {
+			Throwable cause = e.getCause();
+			if(semaphore.get() == 0)
+				writeException.initCause(cause);
+			else
+				writeException.addSuppressed(cause);
+			semaphore.getAndIncrement();
+			//switch (cause) {
+			//    case IOException _ -> {}
+			//    default -> {}
+			//}
 		}
 		if(DEBUG)
 			System.out.println(identity);
