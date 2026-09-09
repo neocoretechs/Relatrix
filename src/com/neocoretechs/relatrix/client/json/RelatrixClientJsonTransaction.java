@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -14,8 +15,10 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteStream;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientTransactionJson;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 
 /**
  * This class functions as client to the {@link RelatrixTransactionServerJson} 
@@ -67,6 +70,27 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
 		return cf.get();
 		}
+	}
+	/**
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
+	 * @param it The previously established iterator
+	 */
+	public void setIterator(Iterator<?> it) {
+		asynchClient.setIterator(((RemoteIteratorClient)it));
+	}
+	/**
+	 * Get the RemoteStream from the Stream, then the RemoteIteratorClient from the RemoteStream, then the AsynchRelatrixClient from the RemoteIteratorClient.
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
+	 * @param st
+	 */
+	public void setStream(Stream st) {
+		asynchClient.setIterator((((RemoteStream)st).getClient()));//.getClient().getIterator());
 	}
 	
 	static int i = 0;

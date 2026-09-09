@@ -6,13 +6,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
 
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteStream;
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.json.util.Converter;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
@@ -70,7 +73,27 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 	public Class<?> createClass(JSONObject jo) {
 		return asynchClient.createClass(jo);
 	}
-	
+	/**
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
+	 * @param it The previously established iterator
+	 */
+	public void setIterator(Iterator<?> it) {
+		asynchClient.setIterator(((RemoteIteratorClient)it));
+	}
+	/**
+	 * Get the RemoteStream from the Stream, then the RemoteIteratorClient from the RemoteStream, then the AsynchRelatrixClient from the RemoteIteratorClient.
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
+	 * @param st
+	 */
+	public void setStream(Stream st) {
+		asynchClient.setIterator((((RemoteStream)st).getClient()));//.getClient().getIterator());
+	}
 	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...

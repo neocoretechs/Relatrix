@@ -87,6 +87,9 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
 			isp.iterators.remove(iteratorId);
 		}
+		public static void removeIterator(UUID session) {
+			sessionToObject.remove(session);
+		}
 	};
 	
 	protected RelatrixKVTransactionServer() {}

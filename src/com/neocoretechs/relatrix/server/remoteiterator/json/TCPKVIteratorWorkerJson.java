@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import java.nio.channels.SocketChannel;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.AbstractRelation;
@@ -85,6 +86,7 @@ public class TCPKVIteratorWorkerJson implements Runnable {
 	 */
 	@Override
 	public void run() {
+		UUID session = null;
 		try {
 			while(shouldRun) {
 				if(DEBUG)
@@ -94,11 +96,13 @@ public class TCPKVIteratorWorkerJson implements Runnable {
 					break;
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixKVServerJson.IteratorServerProcesses.removeIterator(iori.getSession(), iori.getIteratorId());
+					session = null;
 				} else {
+					session = iori.getSession();
 					// Get the iterator linked to this session
-					Object itInst = RelatrixKVServerJson.IteratorServerProcesses.getIterator(iori.getSession(), iori.getIteratorId());
+					Object itInst = RelatrixKVServerJson.IteratorServerProcesses.getIterator(session, iori.getIteratorId());
 					if( itInst == null ) {
-						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
+						throw new IOException("Requested iterator instance does not exist for session "+session);
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
@@ -135,6 +139,8 @@ public class TCPKVIteratorWorkerJson implements Runnable {
 		finally {
 			shouldRun = false;
 			workerHandler.close();
+			if(session != null)
+				RelatrixKVServerJson.IteratorServerProcesses.removeIterator(session);
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}

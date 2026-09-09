@@ -73,7 +73,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
  			paramTypes[i] = o1[i].getClass().getName();
  			params[i] = o1[i].getClass();
  		}
-    	packParamArray();
+    	//packParamArray();
     }
    
     @Override

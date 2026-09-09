@@ -177,7 +177,10 @@ public class ConnectionHandler {
 		} catch (IOException e) {}
 		return String.format("%s local=%s remote=%s isBlocking=%b isConnected=%b isPending=%b isOpen=%b",this.getClass().getName(), local, remote, channel.isBlocking(), channel.isConnected(), channel.isConnectionPending(), channel.isOpen());
 	}
-
+	
+	public boolean isRunning() {
+		return reader.isRunning;
+	}
 
 	/***********************
 	 * Reader inner class
