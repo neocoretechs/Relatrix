@@ -30,10 +30,10 @@ public class FindSetMode5 extends IteratorFactory {
     	this.darg = darg;
     	this.mop = mop;
     	this.rarg = rarg;
-	    // see if its ? or * operator
+	    // see if its * operator
     	dmr_return[1] = 0;
     	// 'map' object
-    	// see if its ? or * operator
+    	// see if its * operator
     	dmr_return[2] = checkOp(mop);
     	//  'range'
     	dmr_return[3] = 0;

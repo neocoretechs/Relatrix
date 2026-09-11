@@ -37,7 +37,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl implements AsynchRelatrixKVClientInterface, ClientInterface, Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	

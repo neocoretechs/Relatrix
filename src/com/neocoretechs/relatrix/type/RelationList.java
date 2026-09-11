@@ -41,6 +41,11 @@ public final class RelationList implements Serializable, List<Comparable>, Trans
 
 	@Override
 	public void unpackFromTransport() {
+		if(DEBUG) {
+			System.out.printf("%s unpackFromTransport %d%n", this.getClass().getName(), list.size());
+			for(Object o: list)
+				System.out.println(o.getClass().getName()+" - "+o);
+		}
 		this.list.replaceAll(e -> createRelation((TransportMorphism) e));	
 	}
 

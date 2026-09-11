@@ -39,7 +39,7 @@ import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
  *
  */
 public class RelatrixKVStatementJson extends RelatrixKVStatement implements RelatrixStatementInterface, Serializable {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
 
     public RelatrixKVStatementJson() {

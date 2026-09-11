@@ -30,7 +30,7 @@ import com.neocoretechs.rocksack.Alias;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2026
  */
 public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
 	AsynchRelatrixKVClientJson asynchClient;

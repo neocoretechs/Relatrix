@@ -32,7 +32,7 @@ public class FindSetMode6 extends IteratorFactory {
     	// 'map' object
     	dmr_return[2] = 0;
     	//  'range'
-    	// see if its ? or * operator
+    	// see if its * operator
     	dmr_return[3] = checkOp(rop);
     }
     /**

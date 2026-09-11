@@ -14,8 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.StructuredTaskScope;
-import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -679,286 +677,130 @@ public final class RelatrixJson {
 		   return returnList;
 	}
 	/**
-	 * Use StructuredTaskScope to store primary key and indexes in parallel
-	 * @param identity main payload record
-	 * @param pk Primary key for payload
-	 * @throws IOException if storage of any element fails
+	 * Invoke threads to store primary key and each index in parallel by calling back to RelatrixKVJson.store.
+	 * @param identity
+	 * @param pk
+	 * @throws IOException
 	 */
 	public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
-		try (var scope = StructuredTaskScope.open()) {
-			Subtask<Runnable> subtask1 = scope.fork(() -> new Runnable() {
+		Future<?>[] jobs = new Future[6];
+		synchronized(mutex) {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
+					try {
+						if(semaphore.get() == 0)
 							RelatrixKVJson.store(pk, identity.getIdentity());
-							if(DEBUG)
-								System.out.println("RelatrixJson.store stored primary:"+pk);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			Subtask<Runnable> subtask2 = scope.fork(() -> new Runnable() {
+						if( DEBUG  )
+							System.out.println("RelatrixJson.store stored primary:"+pk);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				} // run
+			},storeX); // spin 
+			// Start threads to store remaining indexes now that we have our primary set up
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
+					try {
+						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapDomainRange(identity);
 							RelatrixKVJson.store(dmr, identity.getIdentity());	
 							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
-				}
-			});
-			Subtask<Runnable> subtask3 = scope.fork(() -> new Runnable() {
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				} // run
+			},storeX); // spin 
+			jobs[2] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
+					try {
+						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new DomainRangeMap(identity);
 							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
 				}
-			});
-			Subtask<Runnable> subtask4 = scope.fork(() -> new Runnable() {
+			},storeX);
+			jobs[3] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
+					try {
+						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapRangeDomain(identity);
 							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
 				}
-			});
-			Subtask<Runnable> subtask5 = scope.fork(() -> new Runnable() {
+			},storeX);
+			jobs[4] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
+				public void run() {  
+					try {
+						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeDomainMap(identity);
 							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
 				}
-			});
-			Subtask<Runnable> subtask6 = scope.fork(() -> new Runnable() {
+			},storeX);
+			jobs[5] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
+				public void run() {    
+					try {
+						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeMapDomain(identity);
 							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
 				}
-			});
-			// throws if any subtask fails
-			scope.join();
-			// both subtasks completed successfully
-			subtask1.get();
-			subtask2.get();
-			subtask3.get();
-			subtask4.get();
-			subtask5.get();
-			subtask6.get();
-		} catch (Exception e) {
-			Throwable cause = e.getCause();
-			if(semaphore.get() == 0)
-				writeException.initCause(cause);
-			else
-				writeException.addSuppressed(cause);
-			semaphore.getAndIncrement();
-			//switch (cause) {
-			//    case IOException _ -> {}
-			//    default -> {}
-			//}
-		}
-		if(DEBUG)
-			System.out.println(identity);
-		if(semaphore.get() > 0)
-			throw writeException;
-	}
-	/**
-	 * Use StructuredTaskScope to store primary key and indexes in parallel
-	 * @param alias db alias
-	 * @param identity main payload record
-	 * @param pk Primary key for payload
-	 * @throws IOException if storage of any element fails
-	 */
-	public static void storeParallel(Alias alias, Relation identity, PrimaryKeySet pk) throws IOException {
-		AtomicInteger semaphore = new AtomicInteger();
-		final IOException writeException = new IOException();
-		try (var scope = StructuredTaskScope.open()) {
-			Subtask<Runnable> subtask1 = scope.fork(() -> new Runnable() {
-				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
-							RelatrixKVJson.store(alias, pk, identity.getIdentity());
-							if(DEBUG)
-								System.out.println("RelatrixJson.store stored primary:"+pk);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			Subtask<Runnable> subtask2 = scope.fork(() -> new Runnable() {
-				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
-							AbstractRelation dmr = new MapDomainRange(identity);
-							RelatrixKVJson.store(alias, dmr, identity.getIdentity());	
-							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			Subtask<Runnable> subtask3 = scope.fork(() -> new Runnable() {
-				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
-							AbstractRelation dmr = new DomainRangeMap(identity);
-							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
-							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			Subtask<Runnable> subtask4 = scope.fork(() -> new Runnable() {
-				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
-							AbstractRelation dmr = new MapRangeDomain(identity);
-							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
-							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			Subtask<Runnable> subtask5 = scope.fork(() -> new Runnable() {
-				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
-							AbstractRelation dmr = new RangeDomainMap(identity);
-							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
-							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			Subtask<Runnable> subtask6 = scope.fork(() -> new Runnable() {
-				@Override
-				public void run() {
-					if(semaphore.get() == 0) // error flag, if any task increments, abort write
-						try {
-							AbstractRelation dmr = new RangeMapDomain(identity);
-							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
-							if( DEBUG  )
-								System.out.println("RelatrixJson.store stored :"+dmr);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-							if(semaphore.get() == 0)
-								writeException.initCause(e);
-							else
-								writeException.addSuppressed(e);
-							semaphore.getAndIncrement();
-						}
-				}
-			});
-			// throws if any subtask fails
-			scope.join();
-			// both subtasks completed successfully
-			subtask1.get();
-			subtask2.get();
-			subtask3.get();
-			subtask4.get();
-			subtask5.get();
-			subtask6.get();
-		} catch (Exception e) {
-			Throwable cause = e.getCause();
-			if(semaphore.get() == 0)
-				writeException.initCause(cause);
-			else
-				writeException.addSuppressed(cause);
-			semaphore.getAndIncrement();
-			//switch (cause) {
-			//    case IOException _ -> {}
-			//    default -> {}
-			//}
+			},storeX);
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(DEBUG)
 			System.out.println(identity);
@@ -966,6 +808,131 @@ public final class RelatrixJson {
 			throw writeException;
 	}
 	
+	public static void storeParallel(Alias alias, Relation identity, PrimaryKeySet pk) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		Future<?>[] jobs = new Future[6];
+		synchronized(mutex) {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVJson.store(alias, pk, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixJson.store stored primary:"+pk);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				} // run
+			},storeX); // spin 
+			// Start threads to store remaining indexes now that we have our primary set up
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new MapDomainRange(identity);
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());	
+							if( DEBUG  )
+								System.out.println("RelatrixJson.store stored index:"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				} // run
+			},storeX); // spin 
+			jobs[2] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new DomainRangeMap(identity);
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixJson.store stored index:"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				}
+			},storeX);
+			jobs[3] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new MapRangeDomain(identity);
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixJson.store stored index:"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				}
+			},storeX);
+			jobs[4] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
+				@Override
+				public void run() {  
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new RangeDomainMap(identity);
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixJson.store stored index:"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				}
+			},storeX);
+			jobs[5] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new RangeMapDomain(identity);
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixJson.store stored index:"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						if(semaphore.get() == 0)
+							writeException.initCause(e);
+						else
+							writeException.addSuppressed(e);
+						semaphore.getAndIncrement();
+					}
+				}
+			},storeX);
+			SynchronizedThreadManager.waitForCompletion(jobs);
+		}
+		if(DEBUG)
+			System.out.println(identity);
+		if(semaphore.get() > 0)
+			throw writeException;
+	}
 	@ServerMethod
 	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
 		RelatrixKVJson.store(key, value);

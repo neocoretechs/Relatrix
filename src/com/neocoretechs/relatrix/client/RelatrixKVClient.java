@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private Object mutex = new Object();

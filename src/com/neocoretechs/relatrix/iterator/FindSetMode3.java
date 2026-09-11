@@ -31,7 +31,7 @@ public class FindSetMode3 extends IteratorFactory {
     	this.dop = dop;
     	this.rarg = rarg;
     	this.marg = marg;
-	    // see if its ? or * operator
+	    // see if its * operator
     	dmr_return[1] = checkOp(dop);
     	// 'map' object
     	dmr_return[2] = 0;
