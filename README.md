@@ -162,29 +162,7 @@ By pairing the findset logic with the RocksDB prefix extractor, the system avoid
 
 When the database class preprocessor emits compiled key classes, it generates both the forward and reverse mapping variants. A findset query shifts from a complex relational multi-table join into a targeted binary sweep:
 
-```java
 
-public class PosetQueryEngine {
-
-    public RocksIterator executeFindSet(Object domainPattern, Object mapPattern, Object rangeTarget) {
-        ReadOptions ro = new ReadOptions().setPrefixSameAsStart(true);
-        
-        if (domainPattern.equals("*") && mapPattern.equals("*")) {
-            // If the query is findSet('*', '*', concrete_range)
-            // 1. Convert the rangeTarget object into its isomorphic reverse lookup prefix
-            byte[] reversePrefix = convertToReverseLookupPrefix(rangeTarget);
-            
-            // 2. Point the iterator directly at the reverse index partition
-            RocksIterator iter = rocksDb.newIterator(ro);
-            iter.seek(reversePrefix);
-            
-            // 3. This streams back the domains in exact poset order instantly!
-            return iter; 
-        }
-        throw new UnsupportedOperationException("Query pattern complex composition variant");
-    }
-} 
-```
 The Ultimate Theoretical Win
 
 By combining a semantic database foundation with a category-theoretic K/V structure, we have sidestepped the core issue of standard Graph databases (which must traverse pointers across disk blocks) and Relational databases (which must compute costly runtime table joins).
