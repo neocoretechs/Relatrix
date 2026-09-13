@@ -8,15 +8,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
+
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteStream;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientTransactionJson;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 
@@ -26,7 +21,7 @@ import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
  *
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
- * The {@link RelatrixTransactionStatement} contains the transaction Id.
+ * The {@link RelatrixTransactionStatementJson} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTransactionImpl {

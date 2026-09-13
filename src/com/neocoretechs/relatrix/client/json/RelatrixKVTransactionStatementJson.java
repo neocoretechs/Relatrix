@@ -143,7 +143,7 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 			}
 			// put it in the array and send our intermediary back
 			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
-				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
+				setServerObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
 				signalCompletion(getObjectReturn());
 				return;
 			}
@@ -181,7 +181,7 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 				}
 				}
 			}
-			setObjectReturn(result);
+			setServerObjectReturn(result);
 			signalCompletion(result);
 		}
 	}	

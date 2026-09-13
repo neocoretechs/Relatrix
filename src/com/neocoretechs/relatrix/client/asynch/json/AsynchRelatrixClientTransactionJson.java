@@ -17,25 +17,24 @@ import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransactionInterfaceImpl;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.json.RelatrixTransactionStatementJson;
+
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
- * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServerJson} 
+ * This class functions as client to the {@link com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the {@link RelatrixTransactionServerJson}. This client has a {@link ConnectionHandler} that handles traffic.
+ * which is the RelatrixTransactionServerJson. This client has a {@link ConnectionHandler} that handles traffic.
  * .<p>
  *
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p>
@@ -43,7 +42,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  * The {@link RelatrixTransactionStatementJson} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTransactionInterfaceImpl implements AsynchRelatrixClientTransactionInterface, ClientTransactionInterface,Runnable {
+public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientJsonTransactionInterfaceImpl implements AsynchRelatrixClientTransactionInterface, ClientTransactionInterface,Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;

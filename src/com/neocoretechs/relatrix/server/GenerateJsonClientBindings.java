@@ -58,7 +58,7 @@ public class GenerateJsonClientBindings {
 	
 	public static void main(String[] args) throws Exception {
 		if(args.length > 0 && args[0].equals("--help")) {
-			System.out.println("java com.neocoretechs.relatrix.server.GenerateJsonClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatement queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch com.neocoretechs.relatrix.client.ClientTransactionInterface");
+			System.out.println("java com.neocoretechs.relatrix.server.GenerateJsonClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatementJson queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch com.neocoretechs.relatrix.client.ClientTransactionInterface");
 			System.exit(0);
 		}
 		if(args.length < 1 || args.length > 8)

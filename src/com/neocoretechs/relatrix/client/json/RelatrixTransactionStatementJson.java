@@ -8,14 +8,15 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
+
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
+
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
-import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
-import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
-import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
+
 import com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
@@ -95,7 +96,7 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 			}
 			// put it in the array and send our intermediary back
 			RemoteIteratorClientTransaction ric = null;
-			for(int ic = 0; ic < RelatrixTransactionServer.iteratorServerClasses.length; ic++) {
+			for(int ic = 0; ic < RelatrixTransactionServerJson.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixTransactionServerJson.iteratorServerClasses[ic]) {	
 					ric = new RemoteIteratorClientTransaction(transactionId, session, ((InetSocketAddress)RelatrixTransactionServerJson.address).getAddress().getHostName(), RelatrixTransactionServerJson.iteratorPorts[ic], RelatrixTransactionServerJson.port);
 					break;
@@ -105,7 +106,7 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			ric.setIteratorId(UUID.randomUUID());
 			RelatrixTransactionServerJson.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
-			setReturnClass(RemoteIteratorClient.class.getName());
+			setReturnClass(RemoteIteratorClientTransaction.class.getName());
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
@@ -127,7 +128,7 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 				}
 				}
 			}
-			setObjectReturn(result);
+			setServerObjectReturn(result);
 			signalCompletion(result);
 		}
 	}

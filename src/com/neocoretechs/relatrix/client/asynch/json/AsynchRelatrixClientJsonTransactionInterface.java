@@ -526,11 +526,15 @@ public interface AsynchRelatrixClientJsonTransactionInterface extends com.neocor
 
 	public void remove(Alias arg1,TransactionId arg2,Comparable arg3);
 
-	public void remove(TransactionId arg1,Comparable arg2,Comparable arg3);
+	public CompletableFuture<Void> remove(TransactionId arg1,Comparable arg2,Comparable arg3);
 
-	public void remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4);
+	public CompletableFuture<Void> remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4);
 
 	public void remove(TransactionId arg1,Comparable arg2);
+
+	public CompletableFuture<Relation> store(Alias arg1, TransactionId arg2, Comparable arg3, Comparable arg4,Comparable arg5);
+
+	public CompletableFuture<Relation> store(TransactionId arg2, Comparable arg3, Comparable arg4, Comparable arg5);
 
 }
 

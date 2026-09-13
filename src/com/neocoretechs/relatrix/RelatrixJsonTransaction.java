@@ -287,60 +287,23 @@ public final class RelatrixJsonTransaction {
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setTransactionId(xid);
-		JSONObject jsono;
-		Comparable<?> jkeyd, jkeym, jkeyr;
-		if(d instanceof JSONObject) {
-			jsono = (JSONObject)d;
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(d instanceof Comparable<?>) {
-				jkeyd = (Comparable<?>)d;
-			} else {
-				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
-			}
-		}
-		if(m instanceof JSONObject) {
-			jsono = (JSONObject)m;
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(m instanceof Comparable<?>) {
-				jkeym = (Comparable<?>)m;
-			} else {
-				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+m+" found:"+m.getClass());
-			}
-		}
-		if(r instanceof JSONObject) {
-			jsono = (JSONObject)r;
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(r instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)m;
-			} else {
-				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
-			}
-		}
+		Comparable<?>[] jkeydmr = getTuple(xid, d, m, r);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
-		PrimaryKeySet pk = PrimaryKeySet.locate(xid, jkeyd, jkeym, ctx);
+		PrimaryKeySet pk = PrimaryKeySet.locate(xid, jkeydmr[0], jkeydmr[1], ctx);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
-			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+			identity.setDomainResolved(jkeydmr[0]);
+			identity.setMapResolved(jkeydmr[1]);
+			DBKey rKey = AbstractRelation.checkMorphism(jkeydmr[2]);
 			if(rKey == null)
-				identity.setRange(jkeyr);
+				identity.setRange(jkeydmr[2]);
 			else {
 				identity.setRangeKey(rKey);
-				identity.setRangeResolved(jkeyr);
+				identity.setRangeResolved(jkeydmr[2]);
 			}
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
@@ -373,6 +336,46 @@ public final class RelatrixJsonTransaction {
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
 		identity.setTransactionId(xid);
+		Comparable<?>[] jkeydmr = getTuple(alias, xid, d, m, r);
+		// check for domain/map match
+		// Enforce categorical structure; domain->map function uniquely determines range.
+		// If the search winds up at the key or the key is empty or the domain->map exists, the key
+		// cannot be inserted
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, jkeydmr[0], jkeydmr[1], ctx);
+		if(pk.getIdentity() == null) {
+			identity.setDomainKey(pk.getDomainKey());
+			identity.setMapKey(pk.getMapKey());
+			identity.setDomainResolved(jkeydmr[0]);
+			identity.setMapResolved(jkeydmr[1]);
+			DBKey rKey = AbstractRelation.checkMorphism(jkeydmr[2]);
+			if(rKey == null)
+				identity.setRange(alias, jkeydmr[2]);
+			else {
+				identity.setRangeKey(rKey);
+				identity.setRangeResolved(jkeydmr[2]);
+			}
+			// newKey will call into DBKey.newKey with proper transactionId and alias
+			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+			// and return the new DBKey reference
+			identity.setIdentity(identity.newKey(identity));
+		} else
+			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
+		storeParallel(alias, xid, identity, pk);
+		return identity;
+	}
+	/**
+	 * Get the triplet for the params, translating to morphic objects if necessary
+	 * @param alias alias
+	 * @param xid transaction id
+	 * @param d domain
+	 * @param m map
+	 * @param r range
+	 * @return array of Comparable of resolved tuple
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	private static Comparable[] getTuple(Alias alias, TransactionId xid, Object d, Object m, Object r) throws IllegalAccessException, IOException {
 		JSONObject jsono;
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(d instanceof JSONObject) {
@@ -406,39 +409,65 @@ public final class RelatrixJsonTransaction {
 			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)m;
+				jkeyr = (Comparable<?>)r;
 			} else {
 				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
 			}
 		}
-		// check for domain/map match
-		// Enforce categorical structure; domain->map function uniquely determines range.
-		// If the search winds up at the key or the key is empty or the domain->map exists, the key
-		// cannot be inserted
-		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
-		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, jkeyd, jkeym, ctx);
-		if(pk.getIdentity() == null) {
-			identity.setDomainKey(pk.getDomainKey());
-			identity.setMapKey(pk.getMapKey());
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
-			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
-			if(rKey == null)
-				identity.setRange(alias, jkeyr);
-			else {
-				identity.setRangeKey(rKey);
-				identity.setRangeResolved(jkeyr);
-			}
-			// newKey will call into DBKey.newKey with proper transactionId and alias
-			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
-			// and return the new DBKey reference
-			identity.setIdentity(identity.newKey(identity));
-		} else
-			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
-		storeParallel(alias, xid, identity, pk);
-		return identity;
+		return new Comparable[] {jkeyd, jkeym, jkeyr};
 	}
-	
+	/**
+	 * Get the triplet for the params, translating to morphic objects if necessary
+	 * @param xid transaction id
+	 * @param d domain
+	 * @param m map
+	 * @param r range
+	 * @return array of Comparable of resolved tuple
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	private static Comparable[] getTuple(TransactionId xid, Object d, Object m, Object r) throws IllegalAccessException, IOException {
+		JSONObject jsono;
+		Comparable<?> jkeyd, jkeym, jkeyr;
+		if(d instanceof JSONObject) {
+			jsono = (JSONObject)d;
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+		} else {
+			if(d instanceof Comparable<?>) {
+				jkeyd = (Comparable<?>)d;
+			} else {
+				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
+			}
+		}
+		if(m instanceof JSONObject) {
+			jsono = (JSONObject)m;
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+		} else {
+			if(m instanceof Comparable<?>) {
+				jkeym = (Comparable<?>)m;
+			} else {
+				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+m+" found:"+m.getClass());
+			}
+		}
+		if(r instanceof JSONObject) {
+			jsono = (JSONObject)r;
+			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+		} else {
+			if(r instanceof Comparable<?>) {
+				jkeyr = (Comparable<?>)r;
+			} else {
+				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
+			}
+		}
+		return new Comparable[] {jkeyd, jkeym, jkeyr};
+	}
+
 	/**
 	 * Designed to interoperate with {@link Tuple}<p>
 	 * Store the set of prepared tuples. Expects the first tuple to have d, m, r. The remaining tuples
@@ -459,56 +488,20 @@ public final class RelatrixJsonTransaction {
 		identity.setTransactionId(xid);
 		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
 		JSONObject jsono;
-		Comparable<?> jkeyd, jkeym, jkeyr;
-		if(tuple[0] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[0];
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(tuple[0] instanceof Comparable<?>) {
-				jkeyd = (Comparable<?>)tuple[0];
-			} else {
-				throw new IllegalAccessException("tuple[0] Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
-			}
-		}
-		if(tuple[1] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[1];
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(tuple[1] instanceof Comparable<?>) {
-				jkeym = (Comparable<?>)tuple[1];
-			} else {
-				throw new IllegalAccessException("tuple[1] Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
-			}
-		}
-		if(tuple[2] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[2];
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(tuple[2] instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)tuple[2];
-			} else {
-				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+tuple[2]+" found:"+tuple[2].getClass());
-			}
-		}
-		PrimaryKeySet pk = PrimaryKeySet.locate(xid, jkeyd, jkeym, ctx);
+		Comparable<?>[] jkeydmr = getTuple(xid, tuple[0], tuple[1], tuple[2]);
+		PrimaryKeySet pk = PrimaryKeySet.locate(xid, jkeydmr[0], jkeydmr[1], ctx);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
-		DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+		DBKey rKey = AbstractRelation.checkMorphism(jkeydmr[2]);
 		if(rKey == null)
-			identity.setRange(jkeyr);
+			identity.setRange(jkeydmr[2]);
 		else {
 			identity.setRangeKey(rKey);
-			identity.setRangeResolved(jkeyr);
+			identity.setRangeResolved(jkeydmr[2]);
 		}
 		if(pk.getIdentity() == null) {
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
+			identity.setDomainResolved(jkeydmr[0]);
+			identity.setMapResolved(jkeydmr[1]);
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
@@ -520,6 +513,7 @@ public final class RelatrixJsonTransaction {
 		identities.add(identity);
 		if(DEBUG)
 			System.out.println("Tuple size:"+tuples.size());
+		Comparable<?> jkeyd, jkeym;
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);
 			if(tuple[0] instanceof JSONObject) {
@@ -579,57 +573,21 @@ public final class RelatrixJsonTransaction {
 		identity.setAlias(alias);
 		identity.setTransactionId(xid);
 		JSONObject jsono;
-		Comparable<?> jkeyd, jkeym, jkeyr;
-		if(tuple[0] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[0];
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
-			jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(tuple[0] instanceof Comparable<?>) {
-				jkeyd = (Comparable<?>)tuple[0];
-			} else {
-				throw new IllegalAccessException("tuple[0] Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
-			}
-		}
-		if(tuple[1] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[1];
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
-			jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(tuple[1] instanceof Comparable<?>) {
-				jkeym = (Comparable<?>)tuple[1];
-			} else {
-				throw new IllegalAccessException("tuple[1] Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
-			}
-		}
-		if(tuple[2] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[2];
-			ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-			TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
-			jkeyr = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-		} else {
-			if(tuple[2] instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)tuple[2];
-			} else {
-				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+tuple[2]+" found:"+tuple[2].getClass());
-			}
-		}
+		Comparable<?>[] jkeydmr = getTuple(alias, xid, tuple[0], tuple[1], tuple[2]);
 		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
-		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, jkeyd, jkeym, ctx);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, jkeydmr[0], jkeydmr[1], ctx);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
-		DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+		DBKey rKey = AbstractRelation.checkMorphism(jkeydmr[2]);
 		if(rKey == null)
-			identity.setRange(jkeyr);
+			identity.setRange(jkeydmr[2]);
 		else {
 			identity.setRangeKey(rKey);
-			identity.setRangeResolved(jkeyr);
+			identity.setRangeResolved(jkeydmr[2]);
 		}
 		if(pk.getIdentity() == null) {
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
+			identity.setDomainResolved(jkeydmr[0]);
+			identity.setMapResolved(jkeydmr[1]);
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
@@ -641,6 +599,7 @@ public final class RelatrixJsonTransaction {
 		identities.add(identity);
 		if(DEBUG)
 			System.out.println("Tuple size:"+tuples.size());
+		Comparable<?> jkeyd, jkeym;
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);
 			if(tuple[0] instanceof JSONObject) {

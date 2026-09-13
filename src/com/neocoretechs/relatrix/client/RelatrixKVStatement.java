@@ -206,13 +206,15 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	        try {
 	            if (o instanceof Throwable) 
 	            	completionObject.completeExceptionally((Throwable) o);
-	            else 
+	            else {
 	            	completionObject.complete(o);
+	            }
 	        } catch (Throwable t) {
 	            // Ensure caller doesn't hang if complete throws
 	            try { 
 	            	completionObject.completeExceptionally(t); 
 	            } catch (Throwable ignore) {}
+	            t.printStackTrace();
 	            System.err.printf("%s.signalCompletion: cf.complete threw for rs=%x: %s%n",this.getClass().getName(), System.identityHashCode(this), t);
 	        }
 	    } else {
@@ -329,7 +331,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
  		this.paramTypes = new String[0];
  		this.params = new Class[0];
 	}
-
+	
 	@Override
 	public UUID getIteratorId() {
 		return iteratorId;

@@ -47,7 +47,9 @@ public class RelatrixServerJson extends TCPServer {
 	public static int port;
 	
 	public static ServerInvokeMethodJson relatrixMethods = null; // Main Relatrix class methods
-	public static final String relatrixJson = "com.neocoretechs.relatrix.RelatrixJson";
+	
+	public static final Class relatrixJsonClass = com.neocoretechs.relatrix.RelatrixJson.class;
+	public static final String relatrixJson = relatrixJsonClass.getName();
 	
 	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 	

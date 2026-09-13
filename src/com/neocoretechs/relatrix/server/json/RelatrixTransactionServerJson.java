@@ -24,7 +24,8 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
+
+import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteIteratorTransactionServerJson;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -49,6 +50,9 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
+	
+	public static final Class relatrixJsonClass = com.neocoretechs.relatrix.RelatrixJsonTransaction.class;
+	public static final String relatrixJson = relatrixJsonClass.getName();
 	
 	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 
@@ -130,10 +134,10 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	public RelatrixTransactionServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServerJson.port = port;
-		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
@@ -147,10 +151,10 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	public RelatrixTransactionServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServerJson.port = port;
-		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		startServer(address);	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -165,10 +169,10 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	public RelatrixTransactionServerJson(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServerJson.port = port;
-		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		startServer(address);	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -183,10 +187,10 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	public RelatrixTransactionServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServerJson.port = port;
-		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
@@ -222,7 +226,6 @@ public class RelatrixTransactionServerJson extends TCPServer {
 				}              
 				// Create the worker, it in turn creates a WorkerRequestProcessor
              	IndexResolver indexResolver = new IndexResolver(true);
-            	indexResolver.setLocalJson();
             	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
     			uworker = new TCPWorker(datasocket, RelatrixKVJsonTransaction.classLoader, pec);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
@@ -231,7 +234,7 @@ public class RelatrixTransactionServerJson extends TCPServer {
                 	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                 }
 			} catch(Exception e) {
-				System.out.println("Relatrix Transaction Server node configuration server socket accept exception "+e);
+				System.out.println("RelatrixJsonTransaction Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

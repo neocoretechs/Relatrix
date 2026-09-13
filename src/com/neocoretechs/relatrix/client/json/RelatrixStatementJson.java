@@ -103,7 +103,7 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 				}
 				}
 			}
-			setObjectReturn(result);
+			setServerObjectReturn(result);
 			signalCompletion(result);
 		}
 	}

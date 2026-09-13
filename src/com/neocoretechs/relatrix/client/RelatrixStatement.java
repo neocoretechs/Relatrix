@@ -241,7 +241,20 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	 	if(DEBUG)
 			System.out.printf("%s.unpackParamArray%n", this.getClass().getName());
 	}
-	
+	private Object unpackFromTransport(Object o) {
+		Object oReturn = o;
+		switch(o) {
+		case TransportMorphism _ -> oReturn = TransportMorphism.createMorphism((TransportMorphism) o);
+		case Result _ -> ((Result)oReturn).unpackFromTransport();
+		case TransportMorphismInterface _ -> ((TransportMorphismInterface)oReturn).unpackFromTransport();
+		case Exception _ -> {
+			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
+			oReturn = ((Throwable)oReturn).getCause();
+		}
+		default -> { break; }
+		}
+		return oReturn;
+	}
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
 	 * in which case we save it server side and link it to the session for later retrieval

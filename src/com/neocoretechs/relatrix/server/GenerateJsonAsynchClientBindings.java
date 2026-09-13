@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.client.MethodNamesAndParams;
 public class GenerateJsonAsynchClientBindings {
 	private static boolean DEBUG = true;
 	public static String outputClass = "AsynchRelatrixClientInterfaceJson"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
-	public static String extend = "com.neocoretechs.relatrix.client.AsynchRelatrixClientInterface"; // extends this interface
+	public static String extend = "com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientInterfaceJson"; // extends this interface
 	public static String inputClass = "com.neocoretechs.relatrix.RelatrixJson"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
 	public static String statement = "RelatrixStatementJson"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class

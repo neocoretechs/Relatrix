@@ -2308,6 +2308,16 @@ public abstract class AsynchRelatrixClientJsonTransactionInterfaceImpl implement
 		return queueCommand(s).thenApply(result -> (Relation) result);
 	}
 	@Override
+	public CompletableFuture<Relation> store(TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) {
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "store", arg2, arg3, arg4, arg5);
+		return queueCommand(s).thenApply(result -> (Relation) result);
+	}
+	@Override
+	public CompletableFuture<Relation> store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) {
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "store", arg1, arg2, arg3, arg4, arg5);
+		return queueCommand(s).thenApply(result -> (Relation) result);
+	}
+	@Override
 	public CompletableFuture<List> store(Alias arg1,TransactionId arg2,ArrayList arg3) {
 		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "store", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (List) result);
@@ -2353,6 +2363,12 @@ public abstract class AsynchRelatrixClientJsonTransactionInterfaceImpl implement
 		return queueCommand(s).thenApply(result -> (Long) result);
 	}
 	@Override
+	public CompletableFuture<Void> remove(TransactionId arg1,Comparable arg2,Comparable arg3) {
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "remove", arg1, arg2, arg3);
+		CompletableFuture<Object> cf = queueCommand(s);
+		return cf.thenApply(result -> (Void) result);
+	}
+	@Override
 	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) {
 		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "remove", arg1, arg2, arg3);
 		CompletableFuture<Object> cf = queueCommand(s);
@@ -2363,24 +2379,10 @@ public abstract class AsynchRelatrixClientJsonTransactionInterfaceImpl implement
           }
 	}
 	@Override
-	public void remove(TransactionId arg1,Comparable arg2,Comparable arg3) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "remove", arg1, arg2, arg3);
+	public CompletableFuture<Void> remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) {
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "remove", arg1, arg2, arg3,arg4);
 		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
-	}
-	@Override
-	public void remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "remove", arg1, arg2, arg3, arg4);
-		CompletableFuture<Object> cf = queueCommand(s);
-          try {
-                    cf.get();
-          } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-          }
+        return cf.thenApply(result -> (Void) result);
 	}
 	@Override
 	public void remove(TransactionId arg1,Comparable arg2) {

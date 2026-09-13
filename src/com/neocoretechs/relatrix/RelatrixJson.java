@@ -231,8 +231,6 @@ public final class RelatrixJson {
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		RelatrixKVJson.removeAlias(alias);
 	}
-	
-
 	/**
 	 * Get a tuple for the triplet specified, translating JSONObjects to morphic classes if necessary
 	 * @param d domain
@@ -276,7 +274,7 @@ public final class RelatrixJson {
 			jkeyr = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)m;
+				jkeyr = (Comparable<?>)r;
 			} else {
 				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
 			}
@@ -327,7 +325,7 @@ public final class RelatrixJson {
 			jkeyr = RelatrixKVJson.getObject(ttmm, elementsAndTokens);
 		} else {
 			if(r instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)m;
+				jkeyr = (Comparable<?>)r;
 			} else {
 				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
 			}
