@@ -2,6 +2,8 @@
 The Relatrix:
 <h4>Full featured database which not only builds on the Key/Value Deep Store concept with full transaction checkpointing and recovery and
  embedded and server models, but provides a novel way of storing, retrieving and relating complex unstructured object data. </h4>
+ Sub-one-megabyte JAR footprint for edge computing, robotics, and SBC. JDK25 concurrency and native keystore for high performance.<p/>
+ Built on Meta RocksDb, the core of numerous high performance data stores.<p/>
  Data can be expressed as freeform JSON packets that can be related ad-hoc. For instance, here are some concrete examples:<p/>
  fromObject: { Image1: [{"count":1,"detections":[{"name":"refrigerator"}]}], timestamp: 1779166030035 } <br/>
  mapObject: { Image2: [{"count":1,"detections":[{"name":"toilet"}]}], timestamp: 1779166070035 }        <br/>
