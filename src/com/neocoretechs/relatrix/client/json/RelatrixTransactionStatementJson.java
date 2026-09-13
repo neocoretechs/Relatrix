@@ -23,7 +23,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 /**
  * The following class extends {@link RelatrixStatementJson} and allows the transport of transaction method calls to the server {@link RelatrixTransactionServerJson} and
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
- * The process method calls setObjectReturn with the result of the invoked method, and in the case of an Iterator,
+ * The process method calls setServerObjectReturn with the result of the invoked method, and in the case of an Iterator,
  * to install a persistent Iterator to receive calls to deliver iterated objects.
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
@@ -112,20 +112,14 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 		} else {
 			// put it in the array and send our intermediary back
 			if(result != null) {
-				switch(result) {
-				case AbstractRelation _ -> {
+				if(result instanceof AbstractRelation) {
 					Relation.resolve((Relation) result);
-				}
-				case Result _ -> {
-					if(((Result)result).get() instanceof AbstractRelation) {
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
 						Relation rel = (Relation) ((Result)result).get();
 						Relation.resolve(rel);
 						((Result)result).set(rel);
 					}
-				}
-				default -> {
-					break;
-				}
 				}
 			}
 			setServerObjectReturn(result);

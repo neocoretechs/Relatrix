@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
- * The process method calls setObjectReturn with the result of the invoked method, 
+ * The process method calls setServerObjectReturn with the result of the invoked method, 
  * At the creation of each new statement, a session UUID is generated, this id is used to track the statement
  * and link to instance of created objects for remote method invocation.
  * @author Jonathan Groff (C) NeoCoreTechs 2021
@@ -87,20 +87,14 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 		} else {
 			// put it in the array and send our intermediary back
 			if(result != null) {
-				switch(result) {
-				case AbstractRelation _ -> {
+				if(result instanceof AbstractRelation) {
 					Relation.resolve((Relation) result);
-				}
-				case Result _ -> {
-					if(((Result)result).get() instanceof AbstractRelation) {
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
 						Relation rel = (Relation) ((Result)result).get();
 						Relation.resolve(rel);
 						((Result)result).set(rel);
 					}
-				}
-				default -> {
-					break;
-				}
 				}
 			}
 			setServerObjectReturn(result);

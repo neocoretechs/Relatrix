@@ -27,7 +27,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
- * The process method calls setObjectReturn with the result of the invoked method, 
+ * The process method calls setServerObjectReturn with the result of the invoked method, 
  * At the creation of each new statement, a session UUID is generated, this id is used to track the statement
  * and link to instance of created objects for remote method invocation.
  * @author Jonathan Groff (C) NeoCoreTechs 2021
@@ -241,20 +241,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	 	if(DEBUG)
 			System.out.printf("%s.unpackParamArray%n", this.getClass().getName());
 	}
-	private Object unpackFromTransport(Object o) {
-		Object oReturn = o;
-		switch(o) {
-		case TransportMorphism _ -> oReturn = TransportMorphism.createMorphism((TransportMorphism) o);
-		case Result _ -> ((Result)oReturn).unpackFromTransport();
-		case TransportMorphismInterface _ -> ((TransportMorphismInterface)oReturn).unpackFromTransport();
-		case Exception _ -> {
-			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
-			oReturn = ((Throwable)oReturn).getCause();
-		}
-		default -> { break; }
-		}
-		return oReturn;
-	}
+	
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
 	 * in which case we save it server side and link it to the session for later retrieval

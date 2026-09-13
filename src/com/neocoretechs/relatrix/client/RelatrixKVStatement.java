@@ -73,7 +73,11 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
  			params[i] = o1[i].getClass();
  		}
     }
-   
+    /**
+     * Call from process to unpack transported parameters. Uses IndexResolver to resolve indexes if payload contains 
+     * TransportMorphism and subsequent AbstractRelation. If any part of paramArray is instanceof TransportMorphismInterface,
+     * such as for {@link com.neocoretechs.relatrix.type.RelationList} the unpackFromTransport method of that instance is called.
+     */
     protected void unpackParamArray() {
 		for(int i = 0; i < paramArray.length; i++) {
 			if(paramArray[i] != null && paramArray[i].getClass() == TransportMorphism.class) {
@@ -227,13 +231,29 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	
 	@Override
 	public void setObjectReturn(Object o) {
-		objectReturn = o;		
+		if(o instanceof AbstractRelation) {
+			objectReturn = TransportMorphism.createTransport((Relation) o);
+		} else {
+			if(o instanceof TransportMorphismInterface)
+				((TransportMorphismInterface)o).packForTransport();
+			objectReturn = o;
+		}
+		if(DEBUG)
+			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), objectReturn);
 	}
 
 	@Override
 	public Object getObjectReturn() {
+		if(objectReturn instanceof TransportMorphismInterface)
+			((TransportMorphismInterface)objectReturn).unpackFromTransport();
+		else
+			if(objectReturn != null && objectReturn.getClass() == TransportMorphism.class)
+				objectReturn = TransportMorphism.createMorphism((TransportMorphism)objectReturn);
+		if(DEBUG)
+			System.out.printf("%s.getObjectReturn %s%n", this.getClass().getName(), objectReturn);
 		return objectReturn;
 	}
+	
 	@Override
 	public CompletableFuture<Object> getCompletionFuture() {
 		return completionObject;
@@ -297,20 +317,14 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 		} else {
 			// put it in the array and send our intermediary back
 			if(result != null) {
-				switch(result) {
-				case AbstractRelation _ -> {
+				if(result instanceof AbstractRelation) {
 					Relation.resolve((Relation) result);
-				}
-				case Result _ -> {
-					if(((Result)result).get() instanceof AbstractRelation) {
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
 						Relation rel = (Relation) ((Result)result).get();
 						Relation.resolve(rel);
 						((Result)result).set(rel);
 					}
-				}
-				default -> {
-					break;
-				}
 				}
 			}
 		}

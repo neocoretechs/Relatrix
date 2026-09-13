@@ -165,20 +165,14 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 		} else {
 			// put it in the array and send our intermediary back
 			if(result != null) {
-				switch(result) {
-				case AbstractRelation _ -> {
+				if(result instanceof AbstractRelation) {
 					Relation.resolve((Relation) result);
-				}
-				case Result _ -> {
-					if(((Result)result).get() instanceof AbstractRelation) {
+				} else {
+					if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
 						Relation rel = (Relation) ((Result)result).get();
 						Relation.resolve(rel);
 						((Result)result).set(rel);
 					}
-				}
-				default -> {
-					break;
-				}
 				}
 			}
 			setServerObjectReturn(result);

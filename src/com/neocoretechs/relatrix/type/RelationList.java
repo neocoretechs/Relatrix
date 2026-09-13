@@ -12,7 +12,14 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
-
+/**
+ * Contains a list of Relations typically as the result of a batch retrieval operation.<p>
+ * Contains methods to pack the list for transport as a list of TransportMorphism and unpack at destination.
+ * Remember, we store only keys, so first class relationship objects have transient instance fields which must be resolved, and when transported
+ * over the wire, must be copied to non transient fields for serialization over the wire. We implement
+ * TransportMorphismInterface to facilitate recognition of this contract.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025,2026 
+ */
 public final class RelationList implements Serializable, List<Comparable>, TransportMorphismInterface {
 	private static final long serialVersionUID = -8973345814107305867L;
 	private static boolean DEBUG = false;
