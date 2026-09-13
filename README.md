@@ -39,20 +39,20 @@ open up the data to perform analysis not possible with conventional databases.
 <i>To compose two relationships to an association:</i><br/>
 <code>
 Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObject2].[toObject2])); // This composes relationships<p/>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],' * ',' * ', true); // This returns all relationships mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],' * ',' * '); // This returns all relationships mapped to [fromObject1] through ANY map object, including the relationship stored above<p/>
 Stream<Result> stream = (Stream<Result>) Relatrix.findStream(' * ',' * ',' * '); // This makes ready for consumption by stream all relationships as identity objects<p/>
 </code>
 
 ```
-public class VisualCortex {
+public class RelationSet {
 	public static void main(String[] args) throws Exception {
-		Relatrix.setTablespaceDirectory(args[0]);
-		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*', '*', '*', true);
-		Map<Object, Map<Object, Map<Object, Long>>> nameCount = stream.collect(Collectors.groupingBy(b -> b[0].toString(),
-		Collectors.groupingBy(d -> d[1].toString(),
-		Collectors.groupingBy(e -> e[2].toString(), Collectors.counting()))));
-		nameCount.forEach((name, count) -> {
-			System.out.println(name + ":" + count);
+		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*', '*', '*');
+		stream.forEach(e-> {
+			Object d = e.getDomain();
+			Object m = e.getMap();
+			Object r = e.getRange();
+			if(r instanceof Relation)
+				System.out.println("Related element:"+r);
 		});
 	}
 }
