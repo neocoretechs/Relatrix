@@ -67,7 +67,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-
+import com.neocoretechs.relatrix.parallel.Parallel;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -356,12 +356,14 @@ public final class Relatrix {
 			identity.setIdentity(pk.getIdentity());
 		}
 		identities.add(identity);
-		for(int i = 1; i < tuples.size(); i++) {
-			tuple = tuples.get(i);
+		Parallel.parallelFor(1, tuples.size(), i -> {
+			Comparable<?>[] tuplep = tuples.get(i);
 			try {
-				identities.add(store(identity, tuple[0], tuple[1]));
-			} catch(DuplicateKeyException dke) {}
-		}
+				identities.add(store(identity, tuplep[0], tuplep[1]));
+			} catch(DuplicateKeyException | IllegalAccessException | ClassNotFoundException | IOException dke) {
+				throw new RuntimeException(dke);
+			}
+		});
 		return identities;
 	}
 	/**
@@ -405,12 +407,14 @@ public final class Relatrix {
 			identity.setIdentity(pk.getIdentity());
 		}
 		identities.add(identity);
-		for(int i = 1; i < tuples.size(); i++) {
-			tuple = tuples.get(i);
+		Parallel.parallelFor(1, tuples.size(), i -> {
+			Comparable<?>[] tuplep = tuples.get(i);
 			try {
-				identities.add(store(alias, identity, tuple[0], tuple[1]));
-			} catch(DuplicateKeyException dke) {}
-		}
+				identities.add(store(alias, identity, tuplep[0], tuplep[1]));
+			} catch(DuplicateKeyException | IllegalAccessException | NoSuchElementException | ClassNotFoundException | IOException dke) {
+				throw new RuntimeException(dke);
+			}
+		});
 		return identities;
 	}
 	/**

@@ -60,7 +60,7 @@ import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixKeysetIterato
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
-
+import com.neocoretechs.relatrix.parallel.Parallel;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
@@ -487,7 +487,6 @@ public final class RelatrixJsonTransaction {
 		Relation identity = new Relation();
 		identity.setTransactionId(xid);
 		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
-		JSONObject jsono;
 		Comparable<?>[] jkeydmr = getTuple(xid, tuple[0], tuple[1], tuple[2]);
 		PrimaryKeySet pk = PrimaryKeySet.locate(xid, jkeydmr[0], jkeydmr[1], ctx);
 		identity.setDomainKey(pk.getDomainKey());
@@ -513,37 +512,40 @@ public final class RelatrixJsonTransaction {
 		identities.add(identity);
 		if(DEBUG)
 			System.out.println("Tuple size:"+tuples.size());
-		Comparable<?> jkeyd, jkeym;
-		for(int i = 1; i < tuples.size(); i++) {
-			tuple = tuples.get(i);
-			if(tuple[0] instanceof JSONObject) {
-				jsono = (JSONObject)tuple[0];
-				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-				jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-			} else {
-				if(tuple[0] instanceof Comparable<?>) {
-					jkeyd = (Comparable<?>)tuple[0];
-				} else {
-					throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
-				}
-			}
-			if(tuple[1] instanceof JSONObject) {
-				jsono = (JSONObject)tuple[1];
-				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
-				jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-			} else {
-				if(tuple[1] instanceof Comparable<?>) {
-					jkeym = (Comparable<?>)tuple[1];
-				} else {
-					throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
-				}
-			}
+		Parallel.parallelFor(1, tuples.size(), i -> {
+			Comparable<?> jkeyd, jkeym;
+			JSONObject jsono;
 			try {
+				Comparable<?>[] tuplep = tuples.get(i);
+				if(tuplep[0] instanceof JSONObject) {
+					jsono = (JSONObject)tuplep[0];
+					ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+					TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+					jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+				} else {
+					if(tuplep[0] instanceof Comparable<?>) {
+						jkeyd = (Comparable<?>)tuplep[0];
+					} else {
+						throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuplep[0]+" found:"+tuplep[0].getClass());
+					}
+				}
+				if(tuplep[1] instanceof JSONObject) {
+					jsono = (JSONObject)tuplep[1];
+					ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+					TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(elementsAndTokens, xid);
+					jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+				} else {
+					if(tuplep[1] instanceof Comparable<?>) {
+						jkeym = (Comparable<?>)tuplep[1];
+					} else {
+						throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuplep[1]+" found:"+tuplep[1].getClass());
+					}
+				}
 				identities.add(store(xid, identity, jkeyd, jkeym));
-			} catch(DuplicateKeyException dke) {}
-		}
+			} catch(DuplicateKeyException | IllegalAccessException | IOException | ClassNotFoundException dke) {
+				throw new RuntimeException(dke);
+			}
+		});
 		if(DEBUG) {
 			for(Comparable r: identities) {
 				System.out.println(r);
@@ -572,7 +574,6 @@ public final class RelatrixJsonTransaction {
 		Relation identity = new Relation();
 		identity.setAlias(alias);
 		identity.setTransactionId(xid);
-		JSONObject jsono;
 		Comparable<?>[] jkeydmr = getTuple(alias, xid, tuple[0], tuple[1], tuple[2]);
 		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(true),null);
 		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, jkeydmr[0], jkeydmr[1], ctx);
@@ -599,40 +600,43 @@ public final class RelatrixJsonTransaction {
 		identities.add(identity);
 		if(DEBUG)
 			System.out.println("Tuple size:"+tuples.size());
-		Comparable<?> jkeyd, jkeym;
-		for(int i = 1; i < tuples.size(); i++) {
-			tuple = tuples.get(i);
-			if(tuple[0] instanceof JSONObject) {
-				jsono = (JSONObject)tuple[0];
-				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
-				jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-			} else {
-				if(tuple[0] instanceof Comparable<?>) {
-					jkeyd = (Comparable<?>)tuple[0];
-				} else {
-					throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
-				}
-			}
-			if(tuple[1] instanceof JSONObject) {
-				jsono = (JSONObject)tuple[1];
-				ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
-				TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
-				jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
-			} else {
-				if(tuple[1] instanceof Comparable<?>) {
-					jkeym = (Comparable<?>)tuple[1];
-				} else {
-					throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
-				}
-			}
+		Parallel.parallelFor(1, tuples.size(), i -> {
+			Comparable<?> jkeyd, jkeym;
+			JSONObject jsono;
+			Comparable<?>[] tuplep = tuples.get(i);
 			try {
+				if(tuplep[0] instanceof JSONObject) {
+					jsono = (JSONObject)tuplep[0];
+					ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+					TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+					jkeyd = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+				} else {
+					if(tuplep[0] instanceof Comparable<?>) {
+						jkeyd = (Comparable<?>)tuplep[0];
+					} else {
+						throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuplep[0]+" found:"+tuplep[0].getClass());
+					}
+				}
+				if(tuplep[1] instanceof JSONObject) {
+					jsono = (JSONObject)tuplep[1];
+					ElementsAndTokens elementsAndTokens = RelatrixTypeSynthesizer.extractStructuralTokens("", jsono);
+					TransactionalMap ttmm = RelatrixKVJsonTransaction.getJsonClass(alias, elementsAndTokens, xid);
+					jkeym = RelatrixKVJsonTransaction.getObject(ttmm, elementsAndTokens);
+				} else {
+					if(tuplep[1] instanceof Comparable<?>) {
+						jkeym = (Comparable<?>)tuplep[1];
+					} else {
+						throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuplep[1]+" found:"+tuplep[1].getClass());
+					}
+				}
 				identities.add(store(alias, xid, identity, jkeyd, jkeym));
-			} catch(DuplicateKeyException dke) {}
-		}
+			} catch(DuplicateKeyException | IllegalAccessException | IOException | ClassNotFoundException dke) {
+				throw new RuntimeException(dke);
+			}
+		});
 		return identities;
 	}
-	
+
 	/**
 	 * Perform multiple store on passed List
 	 * @param transactionId the Transaction id

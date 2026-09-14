@@ -58,7 +58,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
-
+import com.neocoretechs.relatrix.parallel.Parallel;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -403,17 +403,16 @@ public final class RelatrixTransaction {
 		identities.add(identity);
 		if(DEBUG)
 			System.out.println("Tuple size:"+tuples.size());
-		for(int i = 1; i < tuples.size(); i++) {
-			tuple = tuples.get(i);
-			if(DEBUG)
-				System.out.println(Arrays.toString(tuple));
+		Parallel.parallelFor(1, tuples.size(), i -> {
+			Comparable<?>[] tuplep = tuples.get(i);
 			try {
-				identities.add(store(xid, identity, tuple[0], tuple[1]));
-			} catch(DuplicateKeyException dke) {
 				if(DEBUG)
-					System.out.println("Duplicate key returned for tuple store:"+dke);
+					System.out.println(Arrays.toString(tuplep));
+				identities.add(store(xid, identity, tuplep[0], tuplep[1]));
+			} catch(DuplicateKeyException | IllegalAccessException | ClassNotFoundException | IOException dke) {
+				throw new RuntimeException(dke);
 			}
-		}
+		});
 		if(DEBUG) {
 			for(Comparable r: identities) {
 				System.out.println(r);
@@ -438,7 +437,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static List store(Alias alias, TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
 		List<Comparable> identities = new RelationList();
-		Comparable[] tuple = tuples.get(0);
+		Comparable<?>[] tuple = tuples.get(0);
 		Relation identity = new Relation();
 		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
 		identity.setAlias(alias);
@@ -465,15 +464,17 @@ public final class RelatrixTransaction {
 			identity.setIdentity(pk.getIdentity());
 		}
 		identities.add(identity);
-		for(int i = 1; i < tuples.size(); i++) {
-			tuple = tuples.get(i);
+		Parallel.parallelFor(1, tuples.size(), i -> {
+			Comparable<?>[] tuplep = tuples.get(i);
 			try {
-				identities.add(store(alias, xid, identity, tuple[0], tuple[1]));
-			} catch(DuplicateKeyException dke) {}
-		}
+				identities.add(store(alias, xid, identity, tuplep[0], tuplep[1]));
+			} catch(DuplicateKeyException | IllegalAccessException | ClassNotFoundException | IOException dke) {
+				throw new RuntimeException(dke);
+			}
+		});
 		return identities;
 	}
-	
+
 	/**
 	 * Perform multiple store on passed List
 	 * @param transactionId the Transaction id
