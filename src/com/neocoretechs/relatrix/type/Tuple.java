@@ -9,7 +9,7 @@ import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 /**
  * Represents a Tuple for bulk storage. The store method will extract the List and use the first 3 element array
- * of Comparable as the initial relationship, and the subsequent 2 element arrays are the map and rage of relationships with
+ * of Comparable as the initial relationship, and the subsequent 2 element arrays are the map and range of relationships with
  * initial relationship as domain. Note that we dont implement the Comparable interface, as the intent is for this to wrap
  * Comparables for operations, rather than to be stored as an instance.
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2025

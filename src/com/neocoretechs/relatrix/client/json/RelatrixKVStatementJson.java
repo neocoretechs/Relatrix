@@ -60,7 +60,7 @@ public class RelatrixKVStatementJson extends RelatrixKVStatement implements Rela
     }
     
     public void setJsonParams() {
-    	Converter.setClassLoader((HandlerClassLoader) Thread.currentThread().getContextClassLoader());
+    	//Converter.setClassLoader(new HandlerClassLoader(Thread.currentThread().getContextClassLoader()));
     	for(int i = 0; i < params.length; i++) {
     		try {
     			if(paramArray[i] instanceof JSONObject) {
