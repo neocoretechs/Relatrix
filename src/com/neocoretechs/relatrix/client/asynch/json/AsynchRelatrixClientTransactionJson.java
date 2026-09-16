@@ -110,7 +110,6 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientJso
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
-  	    			o = ((Throwable)o).getCause();
   	    		} else {
   	    			if(o instanceof Iterator || o instanceof Stream) {
   	    				if(iteratorClient != null) {
