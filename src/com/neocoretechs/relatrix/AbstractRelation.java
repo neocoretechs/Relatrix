@@ -684,7 +684,6 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         	try {
         		if(range instanceof NoIndex) {
         			if(resolveKeyNoIndex(((NoIndex)range).getDBKey()) == null) {
-  
         				if(mainResolver == null) {
         					if(ExecutionContextHolder.CONTEXT.isBound()) {
         				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
