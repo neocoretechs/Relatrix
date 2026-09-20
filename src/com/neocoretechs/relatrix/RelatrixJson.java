@@ -610,33 +610,40 @@ public final class RelatrixJson {
 	 */
 	@ServerMethod
 	public static RelationList multiStore(ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
-		   List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
-		   Future<?>[] jobs = new Future[synTuples.size()];
-		   RelationList returnList = new RelationList();
-		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
-		   AtomicInteger threadIndex = new AtomicInteger(0);
-		   for(int i = 0; i < synTuples.size(); i++) {
-		    	jobs[i] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
-		    		@Override
-		    		public void run() {
-		    			Comparable[] dmr = null;
-		    			synchronized(synTuples) {
-		    				dmr = synTuples.get(threadIndex.getAndIncrement());
-		    			}
-		    			try {
-		    				synchronized(synReturn) {
-		    					synReturn.add(store(dmr[0],dmr[1],dmr[2]));
-		    				}
-						} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
-		    				synchronized(synReturn) {
-		    					synReturn.add(null);
-		    				}
-						}
-		    		}
-		    	}, multiStoreX);
-		   }
-		   SynchronizedThreadManager.waitForCompletion(jobs);
-		   return returnList;
+		List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
+		Future<Object>[] jobs = new Future[synTuples.size()];
+		RelationList returnList = new RelationList();
+		AtomicInteger threadIndex = new AtomicInteger(0);
+		ParallelExecutionContext pec = new ParallelExecutionContext(new IndexResolver(), null);
+		for(int i = 0; i < synTuples.size(); i++) {
+			jobs[i] = SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+				@Override
+				public Comparable call() {
+					Comparable[] dmr = null;
+					synchronized(synTuples) {
+						dmr = synTuples.get(threadIndex.getAndIncrement());
+					}
+					try {
+						return store(dmr[0],dmr[1],dmr[2]);
+					} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+						if(!(e instanceof DuplicateKeyException))
+							e.printStackTrace();
+						return null;
+					}
+				}
+			}, multiStoreX, pec);
+		}
+		// Wait and collect results (preserve index order)
+		for (int i = 0; i < jobs.length; i++) {
+			try {
+				Comparable res = (Comparable) jobs[i].get(); // blocks until done
+				returnList.add(res);
+			} catch (InterruptedException | ExecutionException e) {
+				// handle/log; add null or propagate
+				returnList.add(null);
+			}
+		}
+		return returnList;
 	}
 	
 	/**
@@ -650,33 +657,40 @@ public final class RelatrixJson {
 	 */
 	@ServerMethod
 	public static RelationList multiStore(Alias alias, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
-		   List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
-		   Future<?>[] jobs = new Future[synTuples.size()];
-		   RelationList returnList = new RelationList();
-		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
-		   AtomicInteger threadIndex = new AtomicInteger(0);
-		   for(int i = 0; i < synTuples.size(); i++) {
-		    	jobs[i] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
-		    		@Override
-		    		public void run() {
-		    			Comparable[] dmr = null;
-		    			synchronized(synTuples) {
-		    				dmr = synTuples.get(threadIndex.getAndIncrement());
-		    			}
-		    			try {
-		    				synchronized(synReturn) {
-		    					synReturn.add(store(alias, dmr[0],dmr[1],dmr[2]));
-		    				}
-						} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
-		    				synchronized(synReturn) {
-		    					synReturn.add(null);
-		    				}
-						}
-		    		}
-		    	}, multiStoreX);
-		   }
-		   SynchronizedThreadManager.waitForCompletion(jobs);
-		   return returnList;
+		List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
+		Future<Object>[] jobs = new Future[synTuples.size()];
+		RelationList returnList = new RelationList();
+		AtomicInteger threadIndex = new AtomicInteger(0);
+		ParallelExecutionContext pec = new ParallelExecutionContext(new IndexResolver(), null);
+		for(int i = 0; i < synTuples.size(); i++) {
+			jobs[i] = SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+				@Override
+				public Comparable call() {
+					Comparable[] dmr = null;
+					synchronized(synTuples) {
+						dmr = synTuples.get(threadIndex.getAndIncrement());
+					}
+					try {
+						return store(alias,dmr[0],dmr[1],dmr[2]);
+					} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+						if(!(e instanceof DuplicateKeyException))
+							e.printStackTrace();
+						return null;
+					}
+				}
+			}, multiStoreX, pec);
+		}
+		// Wait and collect results (preserve index order)
+		for (int i = 0; i < jobs.length; i++) {
+			try {
+				Comparable res = (Comparable) jobs[i].get(); // blocks until done
+				returnList.add(res);
+			} catch (InterruptedException | ExecutionException e) {
+				// handle/log; add null or propagate
+				returnList.add(null);
+			}
+		}
+		return returnList;
 	}
 	/**
 	 * Invoke threads to store primary key and each index in parallel by calling back to RelatrixKVJson.store.

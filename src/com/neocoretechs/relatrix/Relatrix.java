@@ -427,35 +427,42 @@ public final class Relatrix {
 	 */
 	@ServerMethod
 	public static RelationList multiStore(ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
-		   List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
-		   Future<?>[] jobs = new Future[synTuples.size()];
-		   RelationList returnList = new RelationList();
-		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
-		   AtomicInteger threadIndex = new AtomicInteger(0);
-		   for(int i = 0; i < synTuples.size(); i++) {
-		    	jobs[i] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
-		    		@Override
-		    		public void run() {
-		    			Comparable[] dmr = null;
-		    			synchronized(synTuples) {
-		    				dmr = synTuples.get(threadIndex.getAndIncrement());
-		    			}
-		    			try {
-		    				synchronized(synReturn) {
-		    					synReturn.add(store(dmr[0],dmr[1],dmr[2]));
-		    				}
-						} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
-		    				synchronized(synReturn) {
-		    					synReturn.add(null);
-		    				}
-						}
-		    		}
-		    	}, multiStoreX);
-		   }
-		   SynchronizedThreadManager.waitForCompletion(jobs);
-		   return returnList;
+		List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
+		Future<Object>[] jobs = new Future[synTuples.size()];
+		RelationList returnList = new RelationList();
+		AtomicInteger threadIndex = new AtomicInteger(0);
+		ParallelExecutionContext pec = new ParallelExecutionContext(new IndexResolver(), null);
+		for(int i = 0; i < synTuples.size(); i++) {
+			jobs[i] = SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+				@Override
+				public Comparable call() {
+					Comparable[] dmr = null;
+					synchronized(synTuples) {
+						dmr = synTuples.get(threadIndex.getAndIncrement());
+					}
+					try {
+						return store(dmr[0],dmr[1],dmr[2]);
+					} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+						if(!(e instanceof DuplicateKeyException))
+							e.printStackTrace();
+						return null;
+					}
+				}
+			}, multiStoreX, pec);
+		}
+		// Wait and collect results (preserve index order)
+		for (int i = 0; i < jobs.length; i++) {
+			try {
+				Comparable res = (Comparable) jobs[i].get(); // blocks until done
+				returnList.add(res);
+			} catch (InterruptedException | ExecutionException e) {
+				// handle/log; add null or propagate
+				returnList.add(null);
+			}
+		}
+		return returnList;
 	}
-	
+
 	/**
 	 * Perform multiple store on passed List
 	 * @param alias The database alias
@@ -467,35 +474,47 @@ public final class Relatrix {
 	 */
 	@ServerMethod
 	public static RelationList multiStore(Alias alias, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
-		   List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
-		   Future<?>[] jobs = new Future[synTuples.size()];
-		   RelationList returnList = new RelationList();
-		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
-		   AtomicInteger threadIndex = new AtomicInteger(0);
-		   for(int i = 0; i < synTuples.size(); i++) {
-		    	jobs[i] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
-		    		@Override
-		    		public void run() {
-		    			Comparable[] dmr = null;
-		    			synchronized(synTuples) {
-		    				dmr = synTuples.get(threadIndex.getAndIncrement());
-		    			}
-		    			try {
-		    				synchronized(synReturn) {
-		    					synReturn.add(store(alias, dmr[0],dmr[1],dmr[2]));
-		    				}
-						} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
-		    				synchronized(synReturn) {
-		    					synReturn.add(null);
-		    				}
-						}
-		    		}
-		    	}, multiStoreX);
-		   }
-		   SynchronizedThreadManager.waitForCompletion(jobs);
-		   return returnList;
+		List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
+		Future<Object>[] jobs = new Future[synTuples.size()];
+		RelationList returnList = new RelationList();
+		AtomicInteger threadIndex = new AtomicInteger(0);
+		ParallelExecutionContext pec = new ParallelExecutionContext(new IndexResolver(), null);
+		for(int i = 0; i < synTuples.size(); i++) {
+			jobs[i] = SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+				@Override
+				public Comparable call() {
+					Comparable[] dmr = null;
+					synchronized(synTuples) {
+						dmr = synTuples.get(threadIndex.getAndIncrement());
+					}
+					try {
+						return store(alias,dmr[0],dmr[1],dmr[2]);
+					} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+						if(!(e instanceof DuplicateKeyException))
+							e.printStackTrace();
+						return null;
+					}
+				}
+			}, multiStoreX, pec);
+		}
+		// Wait and collect results (preserve index order)
+		for (int i = 0; i < jobs.length; i++) {
+			try {
+				Comparable res = (Comparable) jobs[i].get(); // blocks until done
+				returnList.add(res);
+			} catch (InterruptedException | ExecutionException e) {
+				// handle/log; add null or propagate
+				returnList.add(null);
+			}
+		}
+		return returnList;
 	}
-	
+	/**
+	 * Store the primary key and associated indexes in parallel threads
+	 * @param identity The template to store
+	 * @param pk The primary key of template
+	 * @throws IOException If storage fails
+	 */
 	public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -621,7 +640,13 @@ public final class Relatrix {
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
-	
+	/**
+	 * Store the identity template and its primary key to an aliased database
+	 * @param alias The alias of the database
+	 * @param identity the Relation template
+	 * @param pk the primary key of the template
+	 * @throws IOException If storage fails
+	 */
 	public static void storeParallel(Alias alias, Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -849,11 +874,10 @@ public final class Relatrix {
 	}
 
 	/**
-	 * 
-	 * @param c
-	 * @param deleted
-	 * @param ctx TODO
-	 * @param transactionId
+	 * Search for related objects with intent to build list of removals of an object and all its associated relationships
+	 * @param c The DBKey to delete
+	 * @param deleted The list of deleted objects populated as the process progresses
+	 * @param ctx Execution context with IndexResolver
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -875,10 +899,10 @@ public final class Relatrix {
 	}
 	/**
 	 * Helper for remove search process
-	 * @param alias
-	 * @param c
-	 * @param deleted
-	 * @param ctx TODO
+	 * @param alias database alias
+	 * @param c Key of target removal
+	 * @param deleted List of progressively populated removal entries
+	 * @param ctx Execution context with IndexResolver
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -901,10 +925,10 @@ public final class Relatrix {
 	
 	/**
 	 * Search the domain, map, and range for each AbstractRelation for relations containing iterator elements
-	 * @param itd
-	 * @param itm
-	 * @param itr
-	 * @param deleted
+	 * @param itd domain element iterator
+	 * @param itm map element iterator
+	 * @param itr range element iterator
+	 * @param deleted List of entries progressively populated with iterator iterations
 	 */
 	private static void sequentialSearch(Iterator<?> itd, Iterator<?> itm, Iterator<?> itr, List<DBKey> deleted) {
 		//long tim1 = System.nanoTime();
@@ -1023,9 +1047,9 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * 
-	 * @param alias
-	 * @param removed
+	 * Internal parallel alias delete
+	 * @param alias database alias
+	 * @param removed list of DBKeys to remove
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -1104,8 +1128,8 @@ public final class Relatrix {
 	/**
 	 * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
 	 * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
-	 * @param d
-	 * @param m
+	 * @param d The domain of the Relation primary key
+	 * @param m The map of the Relation primary key
 	 * @throws IllegalAccessException 
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
@@ -1119,8 +1143,9 @@ public final class Relatrix {
 	/**
 	 * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
 	 * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
-	 * @param d
-	 * @param m
+	 * @param alias The database alias
+	 * @param d The domain primary key
+	 * @param m The map primary key
 	 * @throws IllegalAccessException 
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
@@ -1193,12 +1218,11 @@ public final class Relatrix {
 		return located;
 	}
 	/**
-	 * Find the related elements
-	 * @param c
-	 * @param dbkeys 
-	 * @param ctx TODO
-	 * @param transactionId
-	 * @param deleted
+	 * Find the related elements where target is map
+	 * @param c The target DBKey to remove
+	 * @param dbkeys List of DBKeys to populate
+	 * @param ctx Execution context with IndexResolver
+	 * @param dbkeys List to populate with candidate removals
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1220,7 +1244,17 @@ public final class Relatrix {
 		sequentialMorphismSearch(itm, dbkeys);
 		sequentialMorphismSearch(itr, dbkeys);
 	}
-	
+	/**
+	 * Search for map elements containing relationships with target
+	 * @param c The target
+	 * @param dbkeys The list to populate with candidates
+	 * @param ctx IndexResolver context
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
 	private static void relatedTupleSearch(DBKey c, List<DBKey> dbkeys, ParallelExecutionContext ctx) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		Relation dmr = new Relation(true, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -1313,7 +1347,7 @@ public final class Relatrix {
 	 * Find the related elements
 	 * @param c
 	 * @param dbkeys 
-	 * @param ctx TODO
+	 * @param ctx IndexResolver context
 	 * @param transactionId
 	 * @param deleted
 	 * @throws IOException
@@ -1366,12 +1400,9 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * Search the domain, map, and range for each AbstractRelation for relations containing iterator elements
-	 * @param itd
-	 * @param itm
-	 * @param itr
-	 * @param dbkeys 
-	 * @param deleted
+	 * Search the domain for each AbstractRelation for relations containing iterator elements
+	 * @param itd domain iterator
+	 * @param dbkeys List of results to populate
 	 */
 	protected static void sequentialMorphismSearch(Iterator<?> itd, List<DBKey> dbkeys) {
 		//long tim1 = System.nanoTime();
@@ -1385,7 +1416,6 @@ public final class Relatrix {
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		}
-
 		//System.out.println("sequentialSearch elapsed:"+(System.nanoTime()-tim1)+" nanos.");
 	}
 	/**
