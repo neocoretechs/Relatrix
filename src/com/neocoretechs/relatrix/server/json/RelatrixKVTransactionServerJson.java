@@ -107,6 +107,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixKVTransactionServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJsonTransaction.getInstance();
 		RelatrixKVTransactionServerJson.port = port;
 		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);
 		address = startServer(port);
@@ -123,6 +124,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixKVTransactionServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJsonTransaction.getInstance();
 		RelatrixKVTransactionServerJson.port = port;
 		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);	
 		address = new InetSocketAddress(iaddress, port);
@@ -142,6 +144,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixKVTransactionServerJson(SocketAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJsonTransaction.getInstance();
 		RelatrixKVTransactionServerJson.port = port;
 		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);	
 		address = iaddress;
@@ -160,6 +163,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixKVTransactionServerJson(SocketAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJsonTransaction.getInstance();
 		RelatrixKVTransactionServerJson.port = port;
 		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);	
 		address = iaddress;
@@ -221,7 +225,6 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixKVJsonTransaction.getInstance();
 			if( args.length == 2) {
 				System.out.println("Bringing up RelatrixKVTransactionJson default tablespace "+System.getProperty("tablespace"));
 				new RelatrixKVTransactionServerJson(args[0], Integer.parseInt(args[1]));

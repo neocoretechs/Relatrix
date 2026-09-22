@@ -126,6 +126,7 @@ public class RelatrixServer extends TCPServer {
 	 */
 	public RelatrixServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		Relatrix.getInstance();
 		RelatrixServer.port = port;
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
@@ -143,6 +144,7 @@ public class RelatrixServer extends TCPServer {
 	 */
 	public RelatrixServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		Relatrix.getInstance();
 		RelatrixServer.port = port;
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -161,6 +163,7 @@ public class RelatrixServer extends TCPServer {
 	 */
 	public RelatrixServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		Relatrix.getInstance();
 		RelatrixServer.port = port;
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress,port);
@@ -223,7 +226,6 @@ public class RelatrixServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		Relatrix.getInstance();
 			if( args.length == 2) {
 				System.out.println("Bringing up Relatrix tablespace "+System.getProperty("tablespace"));
 				new RelatrixServer(args[0], Integer.parseInt(args[1]));

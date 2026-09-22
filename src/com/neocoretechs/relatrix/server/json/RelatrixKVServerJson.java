@@ -102,6 +102,7 @@ public class RelatrixKVServerJson extends TCPServer {
 	 */
 	public RelatrixKVServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJson.getInstance();
 		RelatrixKVServerJson.port = port;
 		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = startServer(port);
@@ -112,6 +113,7 @@ public class RelatrixKVServerJson extends TCPServer {
 	
 	public RelatrixKVServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJson.getInstance();
 		RelatrixKVServerJson.port = port;
 		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -123,6 +125,7 @@ public class RelatrixKVServerJson extends TCPServer {
 	
 	public RelatrixKVServerJson(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJson.getInstance();
 		RelatrixKVServerJson.port = port;
 		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -134,6 +137,7 @@ public class RelatrixKVServerJson extends TCPServer {
 	
 	public RelatrixKVServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVJson.getInstance();
 		RelatrixKVServerJson.port = port;
 		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -195,7 +199,6 @@ public class RelatrixKVServerJson extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixKVJson.getInstance();
 		if( args.length == 2) {
 			System.out.println("Bringing up RelatrixKVServerJson tablespace "+System.getProperty("tablespace"));
 			new RelatrixKVServerJson(args[0], Integer.parseInt(args[1]));

@@ -137,19 +137,8 @@ public final class RelatrixJsonTransaction {
 	public static RelatrixJsonTransaction getInstance() {
 		synchronized(RelatrixJsonTransaction.class) {
 			if(instance == null) {
+				RelatrixKVJsonTransaction.getInstance();
 				instance = new RelatrixJsonTransaction();
-				RelatrixKVJsonTransaction.classLoader = new HandlerClassLoader();
-				Thread.currentThread().setContextClassLoader(RelatrixKVJsonTransaction.classLoader);
-				SerializedComparatorFactory.setClassLoader(RelatrixKVJsonTransaction.classLoader);
-				try {
-					String tablespace = System.getProperty("tablespace");
-					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
-						throw new RuntimeException("tablespace property undefined or root path does not exist");
-					DatabaseManager.setTableSpaceDir(tablespace);
-					RelatrixKVJsonTransaction.classLoader.connectToLocalRepository(true, true); // transaction param true, json true
-				} catch (IllegalAccessException | IOException e) {
-					throw new RuntimeException(e);
-				}
 			}
 		}
 		return instance;

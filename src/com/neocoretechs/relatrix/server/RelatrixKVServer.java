@@ -97,6 +97,7 @@ public class RelatrixKVServer extends TCPServer {
 	 */
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKV.getInstance();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
@@ -107,6 +108,7 @@ public class RelatrixKVServer extends TCPServer {
 	
 	public RelatrixKVServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKV.getInstance();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress,port);
@@ -118,6 +120,7 @@ public class RelatrixKVServer extends TCPServer {
 	
 	public RelatrixKVServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKV.getInstance();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -129,6 +132,7 @@ public class RelatrixKVServer extends TCPServer {
 	
 	public RelatrixKVServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKV.getInstance();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -196,7 +200,6 @@ public class RelatrixKVServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixKV.getInstance();
 		if( args.length == 2) {
 			System.out.println("Bringing up RelatrixKV tablespace "+System.getProperty("tablespace"));
 			new RelatrixKVServer(args[0], Integer.parseInt(args[1]));

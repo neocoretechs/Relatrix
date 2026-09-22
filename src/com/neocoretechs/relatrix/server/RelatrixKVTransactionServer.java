@@ -102,6 +102,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 */
 	public RelatrixKVTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVTransaction.getInstance();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
@@ -118,6 +119,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 */
 	public RelatrixKVTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVTransaction.getInstance();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);	
 		address = new InetSocketAddress(iaddress, port);
@@ -136,6 +138,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 */
 	public RelatrixKVTransactionServer(SocketAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVTransaction.getInstance();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);	
 		address = iaddress;
@@ -154,6 +157,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 */
 	public RelatrixKVTransactionServer(SocketAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVTransaction.getInstance();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);	
 		address = iaddress;
@@ -215,7 +219,6 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixKVTransaction.getInstance();
 			if( args.length == 2) {
 				System.out.println("Bringing up RelatrixKVTransaction tablespace "+System.getProperty("tablespace"));
 				new RelatrixKVTransactionServer(args[0], Integer.parseInt(args[1]));

@@ -133,6 +133,7 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixTransactionServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJsonTransaction.getInstance();
 		RelatrixTransactionServerJson.port = port;
 		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = startServer(port);
@@ -150,6 +151,7 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixTransactionServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJsonTransaction.getInstance();
 		RelatrixTransactionServerJson.port = port;
 		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -168,6 +170,7 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixTransactionServerJson(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJsonTransaction.getInstance();
 		RelatrixTransactionServerJson.port = port;
 		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -186,6 +189,7 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	 */
 	public RelatrixTransactionServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJsonTransaction.getInstance();
 		RelatrixTransactionServerJson.port = port;
 		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -246,7 +250,6 @@ public class RelatrixTransactionServerJson extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixJsonTransaction.getInstance();
 		if( args.length == 2) {
 			System.out.println("Bringing up RelatrixJsonTransaction default tablespace "+System.getProperty("tablespace"));
 			new RelatrixTransactionServerJson(args[0], Integer.parseInt(args[1]));

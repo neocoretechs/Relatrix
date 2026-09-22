@@ -127,6 +127,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	 */
 	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixTransaction.getInstance();
 		RelatrixTransactionServer.port = port;
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
@@ -144,6 +145,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	 */
 	public RelatrixTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixTransaction.getInstance();
 		RelatrixTransactionServer.port = port;
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -162,6 +164,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	 */
 	public RelatrixTransactionServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixTransaction.getInstance();
 		RelatrixTransactionServer.port = port;
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -180,6 +183,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	 */
 	public RelatrixTransactionServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixTransaction.getInstance();
 		RelatrixTransactionServer.port = port;
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -242,7 +246,6 @@ public class RelatrixTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixTransaction.getInstance();
 			if( args.length == 2) {
 				System.out.println("Bringing up RelatrixTransaction tablespace "+System.getProperty("tablespace"));
 				new RelatrixTransactionServer(args[0], Integer.parseInt(args[1]));

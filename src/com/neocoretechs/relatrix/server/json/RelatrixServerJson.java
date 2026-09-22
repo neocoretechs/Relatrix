@@ -130,6 +130,7 @@ public class RelatrixServerJson extends TCPServer {
 	 */
 	public RelatrixServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJson.getInstance();
 		RelatrixServerJson.port = port;
 		RelatrixServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixJson, 0);
 		address = startServer(port);
@@ -147,6 +148,7 @@ public class RelatrixServerJson extends TCPServer {
 	 */
 	public RelatrixServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJson.getInstance();
 		RelatrixServerJson.port = port;
 		RelatrixServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
@@ -165,6 +167,7 @@ public class RelatrixServerJson extends TCPServer {
 	 */
 	public RelatrixServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixJson.getInstance();
 		RelatrixServerJson.port = port;
 		RelatrixServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress,port);
@@ -226,7 +229,6 @@ public class RelatrixServerJson extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixJson.getInstance();
 		if( args.length == 2) {
 			System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
 			new RelatrixServerJson(args[0], Integer.parseInt(args[1]));
